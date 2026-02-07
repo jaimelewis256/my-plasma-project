@@ -512,8 +512,7 @@
       position: fixed;
       top: 1.5rem;
       left: 50%;
-      transform: translateX(-50%) translateY(-120%);
-      visibility: hidden;
+      display: none;
       background: var(--text);
       color: #fff;
       padding: 0.85rem 1.5rem;
@@ -528,7 +527,7 @@
     }
     .toast.toast-error { background: #dc2626; }
     .toast.toast-success { background: var(--green); }
-    .toast.show { transform: translateX(-50%) translateY(0); visibility: visible; }
+    .toast.show { display: block; position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); }
 
     /* ===== NAV BADGE ===== */
     .nav-badge-wrap { position: relative; display: inline-block; }
@@ -793,9 +792,8 @@
     function showToast(msg, type) {
       const t = document.getElementById("toast");
       t.textContent = msg;
-      t.className = "toast" + (type === "error" ? " toast-error" : type === "success" ? " toast-success" : "");
-      requestAnimationFrame(() => { t.classList.add("show"); });
-      setTimeout(() => { t.classList.remove("show"); }, 3500);
+      t.className = "toast show" + (type === "error" ? " toast-error" : type === "success" ? " toast-success" : "");
+      setTimeout(() => { t.className = "toast"; }, 3500);
     }
     const CONTRACT_ADDRESS = "0xd9DEBe4f00fe7AbD7921CA0Dec92433495b8F0AF";
     const USDT_ADDRESS = "0x502012b361AebCE43b26Ec812B74D9a51dB4D412";
