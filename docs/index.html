@@ -490,18 +490,33 @@
         alert("Please install MetaMask.\n\nThen add Plasma Testnet:\nRPC: https://testnet-rpc.plasma.to\nChain ID: 9746\nSymbol: XPL");
         return;
       }
-      await window.ethereum.request({ method: "eth_requestAccounts" });
-      provider = new ethers.providers.Web3Provider(window.ethereum);
-      signer = provider.getSigner();
-      contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-      myAddress = await signer.getAddress();
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        const network = await provider.getNetwork();
+        console.log("Connected to chain:", network.chainId);
 
-      // Check if already registered
-      myName = await contract.addressToName(myAddress);
-      if (myName && myName.length > 0) {
-        await showHome();
-      } else {
-        showScreen("screenRegister");
+        if (network.chainId !== 9746) {
+          alert("Please switch MetaMask to Plasma Testnet (Chain ID 9746).\n\nYou are on chain " + network.chainId);
+          return;
+        }
+
+        signer = provider.getSigner();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+        myAddress = await signer.getAddress();
+        console.log("Wallet address:", myAddress);
+
+        // Check if already registered
+        myName = await contract.addressToName(myAddress);
+        console.log("Registered name:", myName);
+        if (myName && myName.length > 0) {
+          await showHome();
+        } else {
+          showScreen("screenRegister");
+        }
+      } catch (e) {
+        console.error("Connect error:", e);
+        alert("Connection failed: " + (e.reason || e.message));
       }
     }
 
