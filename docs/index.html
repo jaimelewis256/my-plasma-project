@@ -335,7 +335,7 @@
       <h1>Plasma Pay</h1>
       <p>Send money instantly to anyone. No fees, no waiting.</p>
       <div style="width:100%">
-        <button class="btn btn-primary" onclick="connectWallet()">Connect Wallet</button>
+        <button class="btn btn-primary" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
       </div>
     </div>
 
@@ -687,6 +687,23 @@
       window.ethereum.on("accountsChanged", () => location.reload());
       window.ethereum.on("chainChanged", () => location.reload());
     }
+
+    // Startup check
+    window.addEventListener("load", function() {
+      const btn = document.getElementById("connectBtn");
+      if (typeof ethers === "undefined") {
+        btn.textContent = "ERROR: ethers.js failed to load";
+        btn.style.background = "#dc2626";
+        return;
+      }
+      if (!window.ethereum) {
+        btn.textContent = "MetaMask not detected";
+        btn.style.background = "#dc2626";
+        return;
+      }
+      btn.textContent = "Connect Wallet";
+      console.log("Plasma Pay ready. ethers:", ethers.version, "MetaMask:", !!window.ethereum);
+    });
   </script>
 </body>
 </html>
