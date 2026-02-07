@@ -1147,19 +1147,23 @@
 
     async function fulfillRequest(requestId) {
       try {
+        const reqs = await contract.getMyPendingRequests();
+        const req = reqs.find(r => r.id.toNumber() === requestId);
+        if (!req) { alert("Request not found"); return; }
         const allowance = await usdtContract.allowance(myAddress, CONTRACT_ADDRESS);
-        const req = (await contract.getMyPendingRequests()).find(r => r.id.toNumber() === requestId);
-        if (req && allowance.lt(req.amount)) {
+        if (allowance.lt(req.amount)) {
           const approveTx = await usdtContract.approve(CONTRACT_ADDRESS, ethers.constants.MaxUint256);
           await approveTx.wait();
         }
         const tx = await contract.fulfillRequest(requestId);
         await tx.wait();
-        alert("Payment sent!");
-        await showRequests();
+        const amt = parseFloat(ethers.utils.formatUnits(req.amount, usdtDecimals)).toFixed(2);
+        document.getElementById("receiptAmount").textContent = "$" + amt;
+        document.getElementById("receiptDesc").textContent = "Sent to " + req.requesterName;
         getUSDTBalance().then(usdt => {
           document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
         });
+        showScreen("screenReceipt");
       } catch (e) {
         alert("Payment failed: " + (e.reason || e.message));
       }
