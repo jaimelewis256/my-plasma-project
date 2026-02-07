@@ -513,6 +513,7 @@
       top: 1.5rem;
       left: 50%;
       transform: translateX(-50%) translateY(-120%);
+      visibility: hidden;
       background: var(--text);
       color: #fff;
       padding: 0.85rem 1.5rem;
@@ -527,7 +528,7 @@
     }
     .toast.toast-error { background: #dc2626; }
     .toast.toast-success { background: var(--green); }
-    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.show { transform: translateX(-50%) translateY(0); visibility: visible; }
 
     /* ===== NAV BADGE ===== */
     .nav-badge-wrap { position: relative; display: inline-block; }
