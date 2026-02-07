@@ -566,7 +566,7 @@
         <div class="balance-hero">
           <div class="balance-label">Account Balance</div>
           <div class="balance-amount" id="homeBalance">$0.00</div>
-          <div class="balance-currency">USDT</div>
+          <div class="balance-currency" id="homeBalanceDetail">XPL · USDT</div>
         </div>
 
         <div class="home-section-header">
@@ -683,7 +683,7 @@
         <div class="balance-hero">
           <div class="balance-label">Account Balance</div>
           <div class="balance-amount" id="historyBalance">$0.00</div>
-          <div class="balance-currency">USDT</div>
+          <div class="balance-currency" id="historyBalanceDetail">XPL · USDT</div>
         </div>
         <div id="fullHistoryList"><div class="empty-state">No transactions yet</div></div>
       </div>
@@ -807,6 +807,13 @@
       } catch (e) { alert("Registration failed: " + (e.reason || e.message)); }
     }
 
+    async function getXPLBalance() {
+      try {
+        const bal = await provider.getBalance(myAddress);
+        return parseFloat(ethers.utils.formatEther(bal));
+      } catch (e) { return 0; }
+    }
+
     async function getUSDTBalance() {
       try {
         const decimals = await usdtContract.decimals();
@@ -818,8 +825,13 @@
     async function showHome() {
       setActiveNav(null);
       showScreen("screenHome");
+      const xpl = await getXPLBalance();
       const usdt = await getUSDTBalance();
-      document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
+      const xplUsd = xpl * XPL_PRICE_USD;
+      const totalUsd = xplUsd + usdt;
+      document.getElementById("homeBalance").textContent = "$" + totalUsd.toFixed(2);
+      document.getElementById("homeBalanceDetail").textContent =
+        xpl.toFixed(4) + " XPL ($" + xplUsd.toFixed(2) + ")  ·  " + usdt.toFixed(2) + " USDT";
       await loadHistory("historyList", 4);
     }
 
@@ -970,6 +982,16 @@
         document.getElementById("receiptAmount").textContent = "$" + amountStr;
         document.getElementById("receiptDesc").textContent = "Sent to " + selectedContact.name;
         btn.textContent = "Confirm & Send"; btn.disabled = false;
+        // Pre-fetch updated balance so home screen is fresh when they go back
+        getXPLBalance().then(xpl => {
+          getUSDTBalance().then(usdt => {
+            const xplUsd = xpl * XPL_PRICE_USD;
+            const totalUsd = xplUsd + usdt;
+            document.getElementById("homeBalance").textContent = "$" + totalUsd.toFixed(2);
+            document.getElementById("homeBalanceDetail").textContent =
+              xpl.toFixed(4) + " XPL ($" + xplUsd.toFixed(2) + ")  ·  " + usdt.toFixed(2) + " USDT";
+          });
+        });
         showScreen("screenReceipt");
       } catch (e) {
         document.getElementById("confirmBtn").textContent = "Confirm & Send";
@@ -981,8 +1003,13 @@
     async function showFullHistory() {
       setActiveNav("navHistory");
       showScreen("screenFullHistory");
+      const xpl = await getXPLBalance();
       const usdt = await getUSDTBalance();
-      document.getElementById("historyBalance").textContent = "$" + usdt.toFixed(2);
+      const xplUsd = xpl * XPL_PRICE_USD;
+      const totalUsd = xplUsd + usdt;
+      document.getElementById("historyBalance").textContent = "$" + totalUsd.toFixed(2);
+      document.getElementById("historyBalanceDetail").textContent =
+        xpl.toFixed(4) + " XPL ($" + xplUsd.toFixed(2) + ")  ·  " + usdt.toFixed(2) + " USDT";
       await loadHistory("fullHistoryList", null);
     }
 
