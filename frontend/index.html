@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Plasma Pay</title>
+  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #111111;
+      --border: #1e1e1e;
+      --text: #ffffff;
+      --muted: #666666;
+      --accent: #6c5ce7;
+      --green: #00d26a;
+      --green-bg: #0a2e1a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 400px;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Screens */
+    .screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 1rem;
+      animation: fadeIn 0.25s ease;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 1rem 0;
+      margin-bottom: 0.5rem;
+    }
+    .header h1 { font-size: 1.25rem; font-weight: 600; }
+    .back-btn {
+      width: 36px; height: 36px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.75rem;
+    }
+    .back-btn:hover { background: #1a1a1a; }
+
+    /* Connect Screen */
+    .connect-screen {
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      text-align: center;
+    }
+    .logo {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .connect-screen h1 { font-size: 1.75rem; font-weight: 700; }
+    .connect-screen p { color: var(--muted); font-size: 0.95rem; line-height: 1.5; max-width: 280px; }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #5b4bd6; }
+    .btn-green { background: var(--green); color: #000; }
+    .btn-green:hover { background: #00c060; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
+    /* Register */
+    .input-group { margin-bottom: 1.5rem; }
+    .input-group label { display: block; color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .input-group input {
+      width: 100%;
+      padding: 1rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .input-group input:focus { border-color: var(--accent); }
+
+    /* Home screen */
+    .balance-section { text-align: center; padding: 2rem 0; }
+    .balance-label { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.25rem; }
+    .balance-amount { font-size: 2.75rem; font-weight: 700; letter-spacing: -0.02em; }
+    .balance-sub { color: var(--muted); font-size: 0.85rem; margin-top: 0.25rem; }
+
+    .send-btn-container { padding: 1rem 0; }
+
+    .history-label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 1rem 0 0.75rem;
+    }
+    .history-item {
+      display: flex;
+      align-items: center;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-right: 0.75rem;
+      flex-shrink: 0;
+    }
+    .history-info { flex: 1; }
+    .history-name { font-weight: 500; font-size: 0.95rem; }
+    .history-time { color: var(--muted); font-size: 0.8rem; }
+    .history-amount { font-weight: 600; font-size: 0.95rem; }
+    .history-amount.sent { color: var(--text); }
+    .history-amount.received { color: var(--green); }
+
+    /* Contacts list */
+    .contact-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .contact-item:hover { border-color: var(--accent); background: #1a1a1a; }
+    .contact-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #fff;
+      margin-right: 0.75rem;
+      flex-shrink: 0;
+    }
+    .contact-name { font-weight: 500; font-size: 1rem; }
+    .contact-addr { color: var(--muted); font-size: 0.8rem; font-family: 'SF Mono', monospace; }
+    .contact-arrow { color: var(--muted); margin-left: auto; font-size: 1.2rem; }
+
+    /* Amount screen */
+    .amount-display {
+      text-align: center;
+      padding: 3rem 0 2rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .amount-to { color: var(--muted); font-size: 0.95rem; margin-bottom: 1rem; }
+    .amount-to span { color: var(--text); font-weight: 600; }
+    .amount-value {
+      font-size: 4rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      min-height: 5rem;
+      display: flex;
+      align-items: center;
+    }
+    .amount-value .currency { color: var(--muted); margin-right: 0.25rem; }
+
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      padding: 0.5rem 0 1rem;
+    }
+    .numpad button {
+      padding: 1rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1.4rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.1s;
+    }
+    .numpad button:active { background: #222; }
+    .numpad .del { font-size: 1.1rem; }
+
+    /* Preview screen */
+    .preview-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .preview-avatars {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .preview-avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #fff;
+    }
+    .preview-arrow { color: var(--muted); font-size: 1.5rem; }
+    .preview-amount { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .preview-desc { color: var(--muted); font-size: 0.95rem; }
+    .preview-fee {
+      display: inline-block;
+      background: var(--green-bg);
+      color: var(--green);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+
+    .preview-details {
+      margin: 1.5rem 0;
+      text-align: left;
+    }
+    .preview-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .preview-row .label { color: var(--muted); }
+
+    .spacer { flex: 1; }
+
+    /* Receipt screen */
+    .receipt-screen { align-items: center; justify-content: center; text-align: center; }
+    .receipt-check {
+      width: 80px; height: 80px;
+      background: var(--green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+    .receipt-amount { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .receipt-desc { color: var(--muted); font-size: 1rem; margin-bottom: 0.5rem; }
+    .receipt-time { color: var(--muted); font-size: 0.85rem; margin-bottom: 2.5rem; }
+    .receipt-buttons { width: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .empty-state { text-align: center; color: var(--muted); padding: 2rem 0; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- SCREEN: Connect -->
+    <div id="screenConnect" class="screen connect-screen active">
+      <div class="logo">P</div>
+      <h1>Plasma Pay</h1>
+      <p>Send money instantly to anyone. No fees, no waiting.</p>
+      <div style="width:100%">
+        <button class="btn btn-primary" onclick="connectWallet()">Connect Wallet</button>
+      </div>
+    </div>
+
+    <!-- SCREEN: Register -->
+    <div id="screenRegister" class="screen">
+      <div class="header">
+        <h1>What's your name?</h1>
+      </div>
+      <p style="color:var(--muted);margin-bottom:1.5rem;font-size:0.9rem">This is how others will find you on Plasma Pay.</p>
+      <div class="input-group">
+        <label>Display name</label>
+        <input type="text" id="registerName" placeholder="e.g. Jaime" maxlength="20" onkeydown="if(event.key==='Enter')registerUser()">
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" onclick="registerUser()">Continue</button>
+    </div>
+
+    <!-- SCREEN: Home -->
+    <div id="screenHome" class="screen">
+      <div class="header">
+        <h1>Plasma Pay</h1>
+      </div>
+      <div class="balance-section">
+        <div class="balance-label">Your balance</div>
+        <div class="balance-amount" id="homeBalance">0.00 ETH</div>
+        <div class="balance-sub" id="homeName">—</div>
+      </div>
+      <div class="send-btn-container">
+        <button class="btn btn-primary" onclick="showContacts()">Send money</button>
+      </div>
+      <div class="history-label">Recent activity</div>
+      <div id="historyList"><div class="empty-state">No transactions yet</div></div>
+    </div>
+
+    <!-- SCREEN: Contacts -->
+    <div id="screenContacts" class="screen">
+      <div class="header">
+        <button class="back-btn" onclick="showHome()">&larr;</button>
+        <h1>Send to</h1>
+      </div>
+      <div id="contactsList"></div>
+    </div>
+
+    <!-- SCREEN: Amount -->
+    <div id="screenAmount" class="screen">
+      <div class="header">
+        <button class="back-btn" onclick="showContacts()">&larr;</button>
+        <h1>Enter amount</h1>
+      </div>
+      <div class="amount-display">
+        <div class="amount-to">Sending to <span id="amountToName">—</span></div>
+        <div class="amount-value"><span class="currency">$</span><span id="amountDisplay">0</span></div>
+      </div>
+      <div class="numpad">
+        <button onclick="numInput('1')">1</button>
+        <button onclick="numInput('2')">2</button>
+        <button onclick="numInput('3')">3</button>
+        <button onclick="numInput('4')">4</button>
+        <button onclick="numInput('5')">5</button>
+        <button onclick="numInput('6')">6</button>
+        <button onclick="numInput('7')">7</button>
+        <button onclick="numInput('8')">8</button>
+        <button onclick="numInput('9')">9</button>
+        <button onclick="numInput('.')">.</button>
+        <button onclick="numInput('0')">0</button>
+        <button class="del" onclick="numDelete()">&#9003;</button>
+      </div>
+      <button class="btn btn-primary" id="amountNextBtn" onclick="showPreview()">Next</button>
+    </div>
+
+    <!-- SCREEN: Preview -->
+    <div id="screenPreview" class="screen">
+      <div class="header">
+        <button class="back-btn" onclick="showAmount()">&larr;</button>
+        <h1>Review payment</h1>
+      </div>
+      <div class="preview-card">
+        <div class="preview-avatars">
+          <div class="preview-avatar" id="previewFromAvatar">J</div>
+          <div class="preview-arrow">&rarr;</div>
+          <div class="preview-avatar" id="previewToAvatar">N</div>
+        </div>
+        <div class="preview-amount" id="previewAmount">$10</div>
+        <div class="preview-desc" id="previewDesc">will be sent to Nele</div>
+        <div class="preview-fee">No fees</div>
+      </div>
+      <div class="preview-details">
+        <div class="preview-row">
+          <span class="label">From</span>
+          <span id="previewFrom">Jaime</span>
+        </div>
+        <div class="preview-row">
+          <span class="label">To</span>
+          <span id="previewTo">Nele</span>
+        </div>
+        <div class="preview-row">
+          <span class="label">Amount (ETH)</span>
+          <span id="previewEth">0.005 ETH</span>
+        </div>
+        <div class="preview-row">
+          <span class="label">Network fee</span>
+          <span style="color:var(--green)">$0.00</span>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-green" onclick="confirmPayment()">Confirm &amp; Send</button>
+    </div>
+
+    <!-- SCREEN: Receipt -->
+    <div id="screenReceipt" class="screen receipt-screen">
+      <div class="receipt-check">&#10003;</div>
+      <div class="receipt-amount" id="receiptAmount">$10</div>
+      <div class="receipt-desc" id="receiptDesc">Sent to Nele</div>
+      <div class="receipt-time" id="receiptTime">Just now</div>
+      <div class="receipt-buttons">
+        <button class="btn btn-primary" onclick="showContacts()">Send again</button>
+        <button class="btn btn-outline" onclick="showHome()">Back to home</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const CONTRACT_ADDRESS = "0x14f6c57F627CA5976C320428f507498d1b62b9B8";
+    const ABI = [
+      "function register(string calldata name) external",
+      "function sendByName(string calldata toName) external payable",
+      "function addressToName(address) view returns (string)",
+      "function nameToAddress(string) view returns (address)",
+      "function getContacts() view returns (string[] names, address[] addrs)",
+      "function getMyHistory() view returns (tuple(address from, address to, string fromName, string toName, uint256 amount, uint256 timestamp)[])",
+      "event UserRegistered(address indexed user, string name)",
+      "event PaymentSent(address indexed from, address indexed to, string fromName, string toName, uint256 amount, uint256 timestamp)"
+    ];
+
+    // Pretend $1 = 0.0005 ETH for display purposes
+    const ETH_PRICE_USD = 2000;
+
+    let provider, signer, contract, myAddress, myName;
+    let selectedContact = { name: "", addr: "" };
+    let amountStr = "0";
+
+    // ---- Navigation ----
+    function showScreen(id) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    // ---- Connect ----
+    async function connectWallet() {
+      if (!window.ethereum) {
+        alert("Please install MetaMask.\n\nThen add Plasma Testnet:\nRPC: https://testnet-rpc.plasma.to\nChain ID: 9746\nSymbol: XPL");
+        return;
+      }
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      signer = provider.getSigner();
+      contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+      myAddress = await signer.getAddress();
+
+      // Check if already registered
+      myName = await contract.addressToName(myAddress);
+      if (myName && myName.length > 0) {
+        await showHome();
+      } else {
+        showScreen("screenRegister");
+      }
+    }
+
+    // ---- Register ----
+    async function registerUser() {
+      const name = document.getElementById("registerName").value.trim();
+      if (!name) return;
+      try {
+        const tx = await contract.register(name);
+        await tx.wait();
+        myName = name;
+        await showHome();
+      } catch (e) {
+        alert("Registration failed: " + (e.reason || e.message));
+      }
+    }
+
+    // ---- Home ----
+    async function showHome() {
+      showScreen("screenHome");
+      const bal = await provider.getBalance(myAddress);
+      const ethBal = parseFloat(ethers.utils.formatEther(bal));
+      document.getElementById("homeBalance").textContent = ethBal.toFixed(4) + " ETH";
+      document.getElementById("homeName").textContent = myName;
+
+      // Load history
+      try {
+        const history = await contract.getMyHistory();
+        const listEl = document.getElementById("historyList");
+        if (history.length === 0) {
+          listEl.innerHTML = '<div class="empty-state">No transactions yet</div>';
+          return;
+        }
+        listEl.innerHTML = "";
+        // Show most recent first
+        for (let i = history.length - 1; i >= 0; i--) {
+          const p = history[i];
+          const isSender = p.from.toLowerCase() === myAddress.toLowerCase();
+          const name = isSender ? p.toName : p.fromName;
+          const initial = name.charAt(0).toUpperCase();
+          const ethAmt = parseFloat(ethers.utils.formatEther(p.amount));
+          const usdAmt = (ethAmt * ETH_PRICE_USD).toFixed(2);
+          const date = new Date(p.timestamp.toNumber() * 1000);
+          const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+          listEl.innerHTML += `
+            <div class="history-item">
+              <div class="history-avatar">${initial}</div>
+              <div class="history-info">
+                <div class="history-name">${isSender ? "To " + name : "From " + name}</div>
+                <div class="history-time">${timeStr}</div>
+              </div>
+              <div class="history-amount ${isSender ? "sent" : "received"}">${isSender ? "-" : "+"}$${usdAmt}</div>
+            </div>`;
+        }
+      } catch (e) {
+        console.error("History error:", e);
+      }
+    }
+
+    // ---- Contacts ----
+    async function showContacts() {
+      showScreen("screenContacts");
+      const listEl = document.getElementById("contactsList");
+      listEl.innerHTML = '<div class="empty-state">Loading contacts...</div>';
+
+      try {
+        const [names, addrs] = await contract.getContacts();
+        listEl.innerHTML = "";
+        for (let i = 0; i < names.length; i++) {
+          if (addrs[i].toLowerCase() === myAddress.toLowerCase()) continue;
+          const initial = names[i].charAt(0).toUpperCase();
+          const shortAddr = addrs[i].slice(0, 6) + "..." + addrs[i].slice(-4);
+          listEl.innerHTML += `
+            <div class="contact-item" onclick="selectContact('${names[i]}', '${addrs[i]}')">
+              <div class="contact-avatar">${initial}</div>
+              <div>
+                <div class="contact-name">${names[i]}</div>
+                <div class="contact-addr">${shortAddr}</div>
+              </div>
+              <div class="contact-arrow">&rsaquo;</div>
+            </div>`;
+        }
+        if (listEl.innerHTML === "") {
+          listEl.innerHTML = '<div class="empty-state">No contacts found</div>';
+        }
+      } catch (e) {
+        listEl.innerHTML = '<div class="empty-state">Error loading contacts</div>';
+      }
+    }
+
+    function selectContact(name, addr) {
+      selectedContact = { name, addr };
+      amountStr = "0";
+      document.getElementById("amountDisplay").textContent = "0";
+      document.getElementById("amountToName").textContent = name;
+      showScreen("screenAmount");
+    }
+
+    // ---- Amount ----
+    function numInput(ch) {
+      if (amountStr === "0" && ch !== ".") amountStr = ch;
+      else if (ch === "." && amountStr.includes(".")) return;
+      else if (amountStr.includes(".") && amountStr.split(".")[1].length >= 2) return;
+      else amountStr += ch;
+      document.getElementById("amountDisplay").textContent = amountStr;
+    }
+
+    function numDelete() {
+      amountStr = amountStr.slice(0, -1) || "0";
+      document.getElementById("amountDisplay").textContent = amountStr;
+    }
+
+    function showAmount() {
+      showScreen("screenAmount");
+    }
+
+    // ---- Preview ----
+    function showPreview() {
+      const usd = parseFloat(amountStr);
+      if (!usd || usd <= 0) return;
+
+      const ethAmount = usd / ETH_PRICE_USD;
+
+      document.getElementById("previewFromAvatar").textContent = myName.charAt(0).toUpperCase();
+      document.getElementById("previewToAvatar").textContent = selectedContact.name.charAt(0).toUpperCase();
+      document.getElementById("previewAmount").textContent = "$" + amountStr;
+      document.getElementById("previewDesc").textContent = "will be sent to " + selectedContact.name;
+      document.getElementById("previewFrom").textContent = myName;
+      document.getElementById("previewTo").textContent = selectedContact.name;
+      document.getElementById("previewEth").textContent = ethAmount.toFixed(6) + " ETH";
+
+      showScreen("screenPreview");
+    }
+
+    // ---- Confirm ----
+    async function confirmPayment() {
+      const usd = parseFloat(amountStr);
+      const ethAmount = usd / ETH_PRICE_USD;
+      const weiAmount = ethers.utils.parseEther(ethAmount.toFixed(18));
+
+      try {
+        const btn = document.querySelector("#screenPreview .btn-green");
+        btn.textContent = "Sending...";
+        btn.disabled = true;
+
+        const tx = await contract.sendByName(selectedContact.name, { value: weiAmount });
+        await tx.wait();
+
+        document.getElementById("receiptAmount").textContent = "$" + amountStr;
+        document.getElementById("receiptDesc").textContent = "Sent to " + selectedContact.name;
+        document.getElementById("receiptTime").textContent = "Just now";
+
+        btn.textContent = "Confirm & Send";
+        btn.disabled = false;
+
+        showScreen("screenReceipt");
+      } catch (e) {
+        const btn = document.querySelector("#screenPreview .btn-green");
+        btn.textContent = "Confirm & Send";
+        btn.disabled = false;
+        alert("Payment failed: " + (e.reason || e.message));
+      }
+    }
+
+    // Auto-reconnect
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", () => location.reload());
+      window.ethereum.on("chainChanged", () => location.reload());
+    }
+  </script>
+</body>
+</html>
