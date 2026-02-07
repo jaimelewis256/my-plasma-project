@@ -4,105 +4,150 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Plasma Pay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
   <style>
     :root {
-      --bg: #000000;
-      --card: #111111;
-      --border: #1e1e1e;
-      --text: #ffffff;
-      --muted: #666666;
-      --accent: #6c5ce7;
-      --green: #00d26a;
-      --green-bg: #0a2e1a;
+      --bg: #ffffff;
+      --bg-light: #f7f7f5;
+      --card: #ffffff;
+      --border: #ececec;
+      --text: #000000;
+      --muted: #888888;
+      --green: #307f61;
+      --green-light: #e8f5ee;
+      --accent: #307f61;
+      --accent-hover: #265e4b;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-      background: var(--bg);
+      font-family: 'Vollkorn', Georgia, serif;
+      background: var(--bg-light);
       color: var(--text);
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
       -webkit-font-smoothing: antialiased;
     }
 
     .app {
       width: 100%;
-      max-width: 400px;
+      max-width: 480px;
       min-height: 100vh;
+      margin: 0 auto;
+      background: var(--bg);
       position: relative;
-      overflow: hidden;
     }
 
-    /* Screens */
+    /* ========== TOP BAR ========== */
+    .topbar {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-logo {
+      width: 32px; height: 32px;
+      background: var(--text);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--bg);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .topbar-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-left: 1rem;
+      flex: 1;
+    }
+    .topbar-nav button {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .topbar-nav button:hover { background: var(--bg-light); color: var(--text); }
+    .topbar-nav button.active { background: var(--bg-light); color: var(--text); font-weight: 600; }
+    .topbar-profile {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .topbar-profile:hover { background: var(--border); }
+
+    /* ========== SCREENS ========== */
     .screen {
       display: none;
       flex-direction: column;
-      min-height: 100vh;
-      padding: 1rem;
-      animation: fadeIn 0.25s ease;
+      min-height: calc(100vh - 53px);
+      padding: 1.5rem 1.25rem;
+      animation: fadeIn 0.2s ease;
     }
     .screen.active { display: flex; }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
-    /* Header */
-    .header {
-      display: flex;
-      align-items: center;
-      padding: 1rem 0;
-      margin-bottom: 0.5rem;
-    }
-    .header h1 { font-size: 1.25rem; font-weight: 600; }
-    .back-btn {
-      width: 36px; height: 36px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 50%;
-      color: var(--text);
-      font-size: 1.1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 0.75rem;
-    }
-    .back-btn:hover { background: #1a1a1a; }
-
-    /* Connect Screen */
+    /* ========== CONNECT SCREEN ========== */
     .connect-screen {
+      min-height: 100vh;
       justify-content: center;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1.25rem;
       text-align: center;
     }
-    .logo {
-      width: 80px; height: 80px;
-      background: linear-gradient(135deg, var(--accent), #a855f7);
-      border-radius: 24px;
+    .connect-logo {
+      width: 72px; height: 72px;
+      background: var(--text);
+      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
+      font-size: 1.75rem;
       font-weight: 700;
-      color: #fff;
+      color: var(--bg);
     }
     .connect-screen h1 { font-size: 1.75rem; font-weight: 700; }
-    .connect-screen p { color: var(--muted); font-size: 0.95rem; line-height: 1.5; max-width: 280px; }
+    .connect-screen p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; max-width: 300px; }
 
-    /* Buttons */
+    /* ========== REGISTER SCREEN ========== */
+    .register-screen { padding-top: 3rem; }
+    .register-screen h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .register-screen .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+
+    /* ========== BUTTONS ========== */
     .btn {
       width: 100%;
-      padding: 1rem;
+      padding: 0.9rem;
       border: none;
-      border-radius: 14px;
-      font-size: 1rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s;
@@ -110,20 +155,26 @@
     }
     .btn:active { transform: scale(0.98); }
     .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: #5b4bd6; }
-    .btn-green { background: var(--green); color: #000; }
-    .btn-green:hover { background: #00c060; }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--muted); }
 
-    /* Register */
+    /* ========== INPUTS ========== */
     .input-group { margin-bottom: 1.5rem; }
-    .input-group label { display: block; color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .input-group label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.5rem;
+    }
     .input-group input {
       width: 100%;
-      padding: 1rem;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
       color: var(--text);
       font-size: 1rem;
       font-family: inherit;
@@ -131,31 +182,55 @@
     }
     .input-group input:focus { border-color: var(--accent); }
 
-    /* Home screen */
-    .balance-section { text-align: center; padding: 2rem 0; }
-    .balance-label { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.25rem; }
-    .balance-amount { font-size: 2.75rem; font-weight: 700; letter-spacing: -0.02em; }
-    .balance-sub { color: var(--muted); font-size: 0.85rem; margin-top: 0.25rem; }
-
-    .send-btn-container { padding: 1rem 0; }
-
-    .history-label {
-      color: var(--muted);
+    /* ========== HOME SCREEN ========== */
+    .balance-cards {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .balance-card {
+      flex: 1;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+    .balance-card-label {
       font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .balance-card-amount {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    .balance-card-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      margin: 1rem 0 0.75rem;
+      margin-bottom: 0.75rem;
     }
-    .history-item {
+
+    .tx-item {
       display: flex;
       align-items: center;
       padding: 0.85rem 0;
       border-bottom: 1px solid var(--border);
     }
-    .history-avatar {
+    .tx-item:last-child { border-bottom: none; }
+    .tx-avatar {
       width: 40px; height: 40px;
       border-radius: 50%;
-      background: var(--card);
+      background: var(--bg-light);
       border: 1px solid var(--border);
       display: flex;
       align-items: center;
@@ -164,132 +239,145 @@
       font-size: 0.9rem;
       margin-right: 0.75rem;
       flex-shrink: 0;
+      color: var(--text);
     }
-    .history-info { flex: 1; }
-    .history-name { font-weight: 500; font-size: 0.95rem; }
-    .history-time { color: var(--muted); font-size: 0.8rem; }
-    .history-amount { font-weight: 600; font-size: 0.95rem; }
-    .history-amount.sent { color: var(--text); }
-    .history-amount.received { color: var(--green); }
+    .tx-info { flex: 1; }
+    .tx-name { font-weight: 600; font-size: 0.9rem; }
+    .tx-date { color: var(--muted); font-size: 0.8rem; }
+    .tx-amount { font-weight: 600; font-size: 0.9rem; }
+    .tx-amount.outflow { color: var(--text); }
+    .tx-amount.inflow { color: var(--green); }
 
-    /* Contacts list */
+    /* ========== CONTACTS ========== */
+    .page-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .page-header h2 { font-size: 1.25rem; font-weight: 700; }
+    .back-link {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--accent);
+      cursor: pointer;
+      margin-right: 0.75rem;
+      font-weight: 500;
+    }
+
     .contact-item {
       display: flex;
       align-items: center;
-      padding: 1rem;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
       margin-bottom: 0.5rem;
       cursor: pointer;
       transition: all 0.15s;
     }
-    .contact-item:hover { border-color: var(--accent); background: #1a1a1a; }
+    .contact-item:hover { border-color: var(--accent); background: var(--bg-light); }
     .contact-avatar {
-      width: 44px; height: 44px;
+      width: 40px; height: 40px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), #a855f7);
+      background: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1rem;
       color: #fff;
       margin-right: 0.75rem;
       flex-shrink: 0;
     }
-    .contact-name { font-weight: 500; font-size: 1rem; }
-    .contact-addr { color: var(--muted); font-size: 0.8rem; font-family: 'SF Mono', monospace; }
+    .contact-name { font-weight: 600; font-size: 0.95rem; }
+    .contact-addr { color: var(--muted); font-size: 0.8rem; font-family: monospace; }
     .contact-arrow { color: var(--muted); margin-left: auto; font-size: 1.2rem; }
 
-    /* Amount screen */
+    /* ========== AMOUNT ========== */
     .amount-display {
       text-align: center;
-      padding: 3rem 0 2rem;
+      padding: 2rem 0 1.5rem;
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
     }
-    .amount-to { color: var(--muted); font-size: 0.95rem; margin-bottom: 1rem; }
+    .amount-to { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.75rem; }
     .amount-to span { color: var(--text); font-weight: 600; }
     .amount-value {
-      font-size: 4rem;
+      font-size: 3.5rem;
       font-weight: 700;
-      letter-spacing: -0.03em;
-      min-height: 5rem;
+      letter-spacing: -0.02em;
+      min-height: 4.5rem;
       display: flex;
       align-items: center;
     }
-    .amount-value .currency { color: var(--muted); margin-right: 0.25rem; }
+    .amount-value .currency { color: var(--muted); margin-right: 0.15rem; }
 
     .numpad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
+      gap: 0.4rem;
       padding: 0.5rem 0 1rem;
     }
     .numpad button {
-      padding: 1rem;
-      background: var(--card);
+      padding: 0.9rem;
+      background: var(--bg-light);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 10px;
       color: var(--text);
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 500;
       cursor: pointer;
       font-family: inherit;
       transition: background 0.1s;
     }
-    .numpad button:active { background: #222; }
-    .numpad .del { font-size: 1.1rem; }
+    .numpad button:active { background: var(--border); }
 
-    /* Preview screen */
+    /* ========== PREVIEW ========== */
     .preview-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
+      background: var(--bg-light);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
       padding: 2rem 1.5rem;
       text-align: center;
-      margin: 1rem 0;
+      margin-bottom: 1.25rem;
     }
     .preview-avatars {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
     }
     .preview-avatar {
-      width: 52px; height: 52px;
+      width: 48px; height: 48px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), #a855f7);
+      background: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       color: #fff;
     }
-    .preview-arrow { color: var(--muted); font-size: 1.5rem; }
-    .preview-amount { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .preview-desc { color: var(--muted); font-size: 0.95rem; }
+    .preview-arrow { color: var(--muted); font-size: 1.25rem; }
+    .preview-amount { font-size: 2.25rem; font-weight: 700; margin-bottom: 0.15rem; }
+    .preview-desc { color: var(--muted); font-size: 0.9rem; }
     .preview-fee {
       display: inline-block;
-      background: var(--green-bg);
+      background: var(--green-light);
       color: var(--green);
-      padding: 0.4rem 1rem;
+      padding: 0.35rem 0.9rem;
       border-radius: 20px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      margin-top: 1rem;
+      margin-top: 0.75rem;
     }
 
-    .preview-details {
-      margin: 1.5rem 0;
-      text-align: left;
-    }
+    .preview-details { margin-bottom: 1.5rem; }
     .preview-row {
       display: flex;
       justify-content: space-between;
@@ -297,54 +385,80 @@
       border-bottom: 1px solid var(--border);
       font-size: 0.9rem;
     }
+    .preview-row:last-child { border-bottom: none; }
     .preview-row .label { color: var(--muted); }
 
-    .spacer { flex: 1; }
-
-    /* Receipt screen */
+    /* ========== RECEIPT ========== */
     .receipt-screen { align-items: center; justify-content: center; text-align: center; }
     .receipt-check {
-      width: 80px; height: 80px;
+      width: 72px; height: 72px;
       background: var(--green);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.5rem;
-      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      color: #fff;
+      margin-bottom: 1.25rem;
       animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     @keyframes popIn {
       from { transform: scale(0); }
       to { transform: scale(1); }
     }
-    .receipt-amount { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .receipt-desc { color: var(--muted); font-size: 1rem; margin-bottom: 0.5rem; }
+    .receipt-amount { font-size: 2.25rem; font-weight: 700; margin-bottom: 0.15rem; }
+    .receipt-desc { color: var(--muted); font-size: 0.95rem; margin-bottom: 0.25rem; }
     .receipt-time { color: var(--muted); font-size: 0.85rem; margin-bottom: 2.5rem; }
     .receipt-buttons { width: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
 
+    /* ========== PROFILE PANEL ========== */
+    .profile-card {
+      background: var(--bg-light);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .profile-avatar-large {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #fff;
+      margin: 0 auto 0.75rem;
+    }
+    .profile-name { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .profile-addr { color: var(--muted); font-size: 0.8rem; font-family: monospace; word-break: break-all; }
+
+    /* ========== HISTORY PAGE ========== */
+    .history-full .tx-item { padding: 1rem 0; }
+
+    .spacer { flex: 1; }
     .empty-state { text-align: center; color: var(--muted); padding: 2rem 0; font-size: 0.9rem; }
   </style>
 </head>
 <body>
   <div class="app">
 
-    <!-- SCREEN: Connect -->
+    <!-- ===== CONNECT SCREEN (no topbar) ===== -->
     <div id="screenConnect" class="screen connect-screen active">
-      <div class="logo">P</div>
+      <div class="connect-logo">P</div>
       <h1>Plasma Pay</h1>
-      <p>Send money instantly to anyone. No fees, no waiting.</p>
-      <div style="width:100%">
+      <p>Send money instantly to anyone on Plasma. No fees, no waiting.</p>
+      <div style="width:100%;max-width:300px">
         <button class="btn btn-primary" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
       </div>
     </div>
 
-    <!-- SCREEN: Register -->
-    <div id="screenRegister" class="screen">
-      <div class="header">
-        <h1>What's your name?</h1>
-      </div>
-      <p style="color:var(--muted);margin-bottom:1.5rem;font-size:0.9rem">This is how others will find you on Plasma Pay.</p>
+    <!-- ===== REGISTER SCREEN (no topbar) ===== -->
+    <div id="screenRegister" class="screen register-screen">
+      <h1>What's your name?</h1>
+      <p class="subtitle">This is how others will find you on Plasma Pay.</p>
       <div class="input-group">
         <label>Display name</label>
         <input type="text" id="registerName" placeholder="e.g. Jaime" maxlength="20" onkeydown="if(event.key==='Enter')registerUser()">
@@ -353,37 +467,52 @@
       <button class="btn btn-primary" onclick="registerUser()">Continue</button>
     </div>
 
-    <!-- SCREEN: Home -->
+    <!-- ===== TOP BAR (shown after login) ===== -->
+    <div id="topbar" class="topbar" style="display:none">
+      <div class="topbar-logo" onclick="showHome()">P</div>
+      <div class="topbar-nav">
+        <button id="navPayments" onclick="showContacts()" class="active">Payments</button>
+        <button id="navRequests" onclick="showRequests()">Requests</button>
+        <button id="navHistory" onclick="showFullHistory()">Transfer History</button>
+      </div>
+      <div class="topbar-profile" id="topbarProfile" onclick="showProfile()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg>
+      </div>
+    </div>
+
+    <!-- ===== HOME ===== -->
     <div id="screenHome" class="screen">
-      <div class="header">
-        <h1>Plasma Pay</h1>
+      <div class="balance-cards">
+        <div class="balance-card">
+          <div class="balance-card-label">USDT</div>
+          <div class="balance-card-amount" id="homeUSDT">$0.00</div>
+          <div class="balance-card-sub">Tether USD</div>
+        </div>
+        <div class="balance-card">
+          <div class="balance-card-label">XPL</div>
+          <div class="balance-card-amount" id="homeXPL">0.0000</div>
+          <div class="balance-card-sub">Plasma</div>
+        </div>
       </div>
-      <div class="balance-section">
-        <div class="balance-label">Your balance</div>
-        <div class="balance-amount" id="homeBalance">0.00 XPL</div>
-        <div class="balance-sub" id="homeName">—</div>
-      </div>
-      <div class="send-btn-container">
-        <button class="btn btn-primary" onclick="showContacts()">Send money</button>
-      </div>
-      <div class="history-label">Recent activity</div>
+
+      <div class="section-label">Recent transactions</div>
       <div id="historyList"><div class="empty-state">No transactions yet</div></div>
     </div>
 
-    <!-- SCREEN: Contacts -->
+    <!-- ===== CONTACTS / PAYMENTS ===== -->
     <div id="screenContacts" class="screen">
-      <div class="header">
-        <button class="back-btn" onclick="showHome()">&larr;</button>
-        <h1>Send to</h1>
+      <div class="page-header">
+        <button class="back-link" onclick="showHome()">&larr;</button>
+        <h2>Send to</h2>
       </div>
       <div id="contactsList"></div>
     </div>
 
-    <!-- SCREEN: Amount -->
+    <!-- ===== AMOUNT ===== -->
     <div id="screenAmount" class="screen">
-      <div class="header">
-        <button class="back-btn" onclick="showContacts()">&larr;</button>
-        <h1>Enter amount</h1>
+      <div class="page-header">
+        <button class="back-link" onclick="showContacts()">&larr;</button>
+        <h2>Enter amount</h2>
       </div>
       <div class="amount-display">
         <div class="amount-to">Sending to <span id="amountToName">—</span></div>
@@ -401,16 +530,16 @@
         <button onclick="numInput('9')">9</button>
         <button onclick="numInput('.')">.</button>
         <button onclick="numInput('0')">0</button>
-        <button class="del" onclick="numDelete()">&#9003;</button>
+        <button onclick="numDelete()">&#9003;</button>
       </div>
-      <button class="btn btn-primary" id="amountNextBtn" onclick="showPreview()">Next</button>
+      <button class="btn btn-primary" onclick="showPreview()">Next</button>
     </div>
 
-    <!-- SCREEN: Preview -->
+    <!-- ===== PREVIEW ===== -->
     <div id="screenPreview" class="screen">
-      <div class="header">
-        <button class="back-btn" onclick="showAmount()">&larr;</button>
-        <h1>Review payment</h1>
+      <div class="page-header">
+        <button class="back-link" onclick="showAmount()">&larr;</button>
+        <h2>Review payment</h2>
       </div>
       <div class="preview-card">
         <div class="preview-avatars">
@@ -432,8 +561,8 @@
           <span id="previewTo">Nele</span>
         </div>
         <div class="preview-row">
-          <span class="label">Amount (ETH)</span>
-          <span id="previewEth">0.005 XPL</span>
+          <span class="label">Amount in USDT</span>
+          <span id="previewUSDT">$10.00</span>
         </div>
         <div class="preview-row">
           <span class="label">Network fee</span>
@@ -441,10 +570,10 @@
         </div>
       </div>
       <div class="spacer"></div>
-      <button class="btn btn-green" onclick="confirmPayment()">Confirm &amp; Send</button>
+      <button class="btn btn-primary" id="confirmBtn" onclick="confirmPayment()">Confirm &amp; Send</button>
     </div>
 
-    <!-- SCREEN: Receipt -->
+    <!-- ===== RECEIPT ===== -->
     <div id="screenReceipt" class="screen receipt-screen">
       <div class="receipt-check">&#10003;</div>
       <div class="receipt-amount" id="receiptAmount">$10</div>
@@ -456,10 +585,40 @@
       </div>
     </div>
 
+    <!-- ===== REQUESTS (placeholder) ===== -->
+    <div id="screenRequests" class="screen">
+      <div class="empty-state" style="padding-top:4rem">
+        <p style="font-size:1.1rem;font-weight:600;margin-bottom:0.5rem">Requests</p>
+        <p>No payment requests yet.</p>
+      </div>
+    </div>
+
+    <!-- ===== FULL HISTORY ===== -->
+    <div id="screenFullHistory" class="screen">
+      <div class="section-label">All transactions</div>
+      <div id="fullHistoryList" class="history-full"><div class="empty-state">No transactions yet</div></div>
+    </div>
+
+    <!-- ===== PROFILE ===== -->
+    <div id="screenProfile" class="screen">
+      <div class="page-header">
+        <button class="back-link" onclick="showHome()">&larr;</button>
+        <h2>Account</h2>
+      </div>
+      <div class="profile-card">
+        <div class="profile-avatar-large" id="profileAvatar">J</div>
+        <div class="profile-name" id="profileName">Jaime</div>
+        <div class="profile-addr" id="profileAddr">0x000...0000</div>
+      </div>
+      <div class="section-label">Network</div>
+      <div style="padding:0.5rem 0;font-size:0.9rem">Plasma Testnet (Chain ID 9746)</div>
+    </div>
+
   </div>
 
   <script>
     const CONTRACT_ADDRESS = "0x14f6c57F627CA5976C320428f507498d1b62b9B8";
+    const USDT_ADDRESS = "0x502012b361AebCE43b26Ec812B74D9a51dB4D412";
     const ABI = [
       "function register(string calldata name) external",
       "function sendByName(string calldata toName) external payable",
@@ -470,11 +629,14 @@
       "event UserRegistered(address indexed user, string name)",
       "event PaymentSent(address indexed from, address indexed to, string fromName, string toName, uint256 amount, uint256 timestamp)"
     ];
+    const ERC20_ABI = [
+      "function balanceOf(address) view returns (uint256)",
+      "function decimals() view returns (uint8)"
+    ];
 
-    // Pretend $1 = 0.0005 XPL for display purposes
     const XPL_PRICE_USD = 2000;
 
-    let provider, signer, contract, myAddress, myName;
+    let provider, signer, contract, usdtContract, myAddress, myName;
     let selectedContact = { name: "", addr: "" };
     let amountStr = "0";
 
@@ -482,6 +644,15 @@
     function showScreen(id) {
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
       document.getElementById(id).classList.add("active");
+    }
+
+    function setActiveNav(btnId) {
+      document.querySelectorAll(".topbar-nav button").forEach(b => b.classList.remove("active"));
+      if (btnId) document.getElementById(btnId).classList.add("active");
+    }
+
+    function showTopbar() {
+      document.getElementById("topbar").style.display = "flex";
     }
 
     // ---- Connect ----
@@ -494,7 +665,6 @@
         await window.ethereum.request({ method: "eth_requestAccounts" });
         provider = new ethers.providers.Web3Provider(window.ethereum);
         const network = await provider.getNetwork();
-        console.log("Connected to chain:", network.chainId);
 
         if (network.chainId !== 9746) {
           alert("Please switch MetaMask to Plasma Testnet (Chain ID 9746).\n\nYou are on chain " + network.chainId);
@@ -503,13 +673,12 @@
 
         signer = provider.getSigner();
         contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+        usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, provider);
         myAddress = await signer.getAddress();
-        console.log("Wallet address:", myAddress);
 
-        // Check if already registered
         myName = await contract.addressToName(myAddress);
-        console.log("Registered name:", myName);
         if (myName && myName.length > 0) {
+          showTopbar();
           await showHome();
         } else {
           showScreen("screenRegister");
@@ -528,6 +697,7 @@
         const tx = await contract.register(name);
         await tx.wait();
         myName = name;
+        showTopbar();
         await showHome();
       } catch (e) {
         alert("Registration failed: " + (e.reason || e.message));
@@ -536,40 +706,56 @@
 
     // ---- Home ----
     async function showHome() {
+      setActiveNav(null);
       showScreen("screenHome");
-      const bal = await provider.getBalance(myAddress);
-      const ethBal = parseFloat(ethers.utils.formatEther(bal));
-      document.getElementById("homeBalance").textContent = ethBal.toFixed(4) + " XPL";
-      document.getElementById("homeName").textContent = myName;
 
-      // Load history
+      // XPL balance
+      const bal = await provider.getBalance(myAddress);
+      const xplBal = parseFloat(ethers.utils.formatEther(bal));
+      document.getElementById("homeXPL").textContent = xplBal.toFixed(4);
+
+      // USDT balance
+      try {
+        const decimals = await usdtContract.decimals();
+        const usdtBal = await usdtContract.balanceOf(myAddress);
+        const formatted = parseFloat(ethers.utils.formatUnits(usdtBal, decimals));
+        document.getElementById("homeUSDT").textContent = "$" + formatted.toFixed(2);
+      } catch (e) {
+        document.getElementById("homeUSDT").textContent = "$0.00";
+      }
+
+      // Load history (max 4)
+      await loadHistory("historyList", 4);
+    }
+
+    async function loadHistory(elementId, limit) {
       try {
         const history = await contract.getMyHistory();
-        const listEl = document.getElementById("historyList");
+        const listEl = document.getElementById(elementId);
         if (history.length === 0) {
           listEl.innerHTML = '<div class="empty-state">No transactions yet</div>';
           return;
         }
         listEl.innerHTML = "";
-        // Show most recent first
-        for (let i = history.length - 1; i >= 0; i--) {
+        const count = limit ? Math.min(limit, history.length) : history.length;
+        for (let i = history.length - 1; i >= history.length - count; i--) {
           const p = history[i];
           const isSender = p.from.toLowerCase() === myAddress.toLowerCase();
           const name = isSender ? p.toName : p.fromName;
           const initial = name.charAt(0).toUpperCase();
-          const ethAmt = parseFloat(ethers.utils.formatEther(p.amount));
-          const usdAmt = (ethAmt * XPL_PRICE_USD).toFixed(2);
+          const xplAmt = parseFloat(ethers.utils.formatEther(p.amount));
+          const usdAmt = (xplAmt * XPL_PRICE_USD).toFixed(2);
           const date = new Date(p.timestamp.toNumber() * 1000);
-          const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          const dateStr = date.toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" });
 
           listEl.innerHTML += `
-            <div class="history-item">
-              <div class="history-avatar">${initial}</div>
-              <div class="history-info">
-                <div class="history-name">${isSender ? "To " + name : "From " + name}</div>
-                <div class="history-time">${timeStr}</div>
+            <div class="tx-item">
+              <div class="tx-avatar">${initial}</div>
+              <div class="tx-info">
+                <div class="tx-name">${name}</div>
+                <div class="tx-date">${dateStr}</div>
               </div>
-              <div class="history-amount ${isSender ? "sent" : "received"}">${isSender ? "-" : "+"}$${usdAmt}</div>
+              <div class="tx-amount ${isSender ? "outflow" : "inflow"}">${isSender ? "-" : "+"}$${usdAmt}</div>
             </div>`;
         }
       } catch (e) {
@@ -577,8 +763,9 @@
       }
     }
 
-    // ---- Contacts ----
+    // ---- Contacts / Payments ----
     async function showContacts() {
+      setActiveNav("navPayments");
       showScreen("screenContacts");
       const listEl = document.getElementById("contactsList");
       listEl.innerHTML = '<div class="empty-state">Loading contacts...</div>';
@@ -630,16 +817,14 @@
       document.getElementById("amountDisplay").textContent = amountStr;
     }
 
-    function showAmount() {
-      showScreen("screenAmount");
-    }
+    function showAmount() { showScreen("screenAmount"); }
 
     // ---- Preview ----
     function showPreview() {
       const usd = parseFloat(amountStr);
       if (!usd || usd <= 0) return;
 
-      const ethAmount = usd / XPL_PRICE_USD;
+      const xplAmount = usd / XPL_PRICE_USD;
 
       document.getElementById("previewFromAvatar").textContent = myName.charAt(0).toUpperCase();
       document.getElementById("previewToAvatar").textContent = selectedContact.name.charAt(0).toUpperCase();
@@ -647,7 +832,7 @@
       document.getElementById("previewDesc").textContent = "will be sent to " + selectedContact.name;
       document.getElementById("previewFrom").textContent = myName;
       document.getElementById("previewTo").textContent = selectedContact.name;
-      document.getElementById("previewEth").textContent = ethAmount.toFixed(6) + " XPL";
+      document.getElementById("previewUSDT").textContent = "$" + parseFloat(amountStr).toFixed(2);
 
       showScreen("screenPreview");
     }
@@ -655,11 +840,11 @@
     // ---- Confirm ----
     async function confirmPayment() {
       const usd = parseFloat(amountStr);
-      const ethAmount = usd / XPL_PRICE_USD;
-      const weiAmount = ethers.utils.parseEther(ethAmount.toFixed(18));
+      const xplAmount = usd / XPL_PRICE_USD;
+      const weiAmount = ethers.utils.parseEther(xplAmount.toFixed(18));
 
       try {
-        const btn = document.querySelector("#screenPreview .btn-green");
+        const btn = document.getElementById("confirmBtn");
         btn.textContent = "Sending...";
         btn.disabled = true;
 
@@ -675,11 +860,33 @@
 
         showScreen("screenReceipt");
       } catch (e) {
-        const btn = document.querySelector("#screenPreview .btn-green");
+        const btn = document.getElementById("confirmBtn");
         btn.textContent = "Confirm & Send";
         btn.disabled = false;
         alert("Payment failed: " + (e.reason || e.message));
       }
+    }
+
+    // ---- Requests (placeholder) ----
+    function showRequests() {
+      setActiveNav("navRequests");
+      showScreen("screenRequests");
+    }
+
+    // ---- Full History ----
+    async function showFullHistory() {
+      setActiveNav("navHistory");
+      showScreen("screenFullHistory");
+      await loadHistory("fullHistoryList", null);
+    }
+
+    // ---- Profile ----
+    function showProfile() {
+      setActiveNav(null);
+      showScreen("screenProfile");
+      document.getElementById("profileAvatar").textContent = myName.charAt(0).toUpperCase();
+      document.getElementById("profileName").textContent = myName;
+      document.getElementById("profileAddr").textContent = myAddress;
     }
 
     // Auto-reconnect
@@ -701,8 +908,7 @@
         btn.style.background = "#dc2626";
         return;
       }
-      btn.textContent = "Connect Wallet";
-      console.log("Plasma Pay ready. ethers:", ethers.version, "MetaMask:", !!window.ethereum);
+      console.log("Plasma Pay ready. ethers:", ethers.version);
     });
   </script>
 </body>
