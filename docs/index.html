@@ -507,6 +507,28 @@
     .register-box h1 { color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; }
     .register-box .subtitle { color: rgba(255,255,255,0.65); font-size: 0.9rem; margin-bottom: 2rem; }
 
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(-120%);
+      background: var(--text);
+      color: #fff;
+      padding: 0.85rem 1.5rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      z-index: 300;
+      transition: transform 0.3s ease;
+      max-width: 90%;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .toast.toast-error { background: #dc2626; }
+    .toast.toast-success { background: var(--green); }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
     /* ===== NAV BADGE ===== */
     .nav-badge-wrap { position: relative; display: inline-block; }
     .nav-badge {
@@ -763,9 +785,17 @@
       </button>
     </div>
 
+    <div class="toast" id="toast"></div>
   </div>
 
   <script>
+    function showToast(msg, type) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.className = "toast" + (type === "error" ? " toast-error" : type === "success" ? " toast-success" : "");
+      requestAnimationFrame(() => { t.classList.add("show"); });
+      setTimeout(() => { t.classList.remove("show"); }, 3500);
+    }
     const CONTRACT_ADDRESS = "0xd9DEBe4f00fe7AbD7921CA0Dec92433495b8F0AF";
     const USDT_ADDRESS = "0x502012b361AebCE43b26Ec812B74D9a51dB4D412";
     const ABI = [
@@ -815,7 +845,7 @@
 
     async function connectWallet() {
       if (!window.ethereum) {
-        alert("Please install MetaMask.\n\nThen add Plasma Testnet:\nRPC: https://testnet-rpc.plasma.to\nChain ID: 9746\nSymbol: XPL");
+        showToast("Please install MetaMask and add Plasma Testnet (Chain ID 9746)", "error");
         return;
       }
       try {
@@ -823,7 +853,7 @@
         provider = new ethers.providers.Web3Provider(window.ethereum);
         const network = await provider.getNetwork();
         if (network.chainId !== 9746) {
-          alert("Please switch MetaMask to Plasma Testnet (Chain ID 9746).\n\nYou are on chain " + network.chainId);
+          showToast("Please switch MetaMask to Plasma Testnet (Chain ID 9746)", "error");
           return;
         }
         signer = provider.getSigner();
@@ -840,7 +870,7 @@
         }
       } catch (e) {
         console.error("Connect error:", e);
-        alert("Connection failed: " + (e.reason || e.message));
+        showToast("Connection failed: " + (e.reason || e.message), "error");
       }
     }
 
@@ -853,7 +883,7 @@
         myName = name;
         showTopbar();
         await showHome();
-      } catch (e) { alert("Registration failed: " + (e.reason || e.message)); }
+      } catch (e) { showToast("Registration failed: " + (e.reason || e.message), "error"); }
     }
 
     async function getUSDTBalance() {
@@ -1095,7 +1125,7 @@
       } catch (e) {
         btn.textContent = flowMode === "send" ? "Confirm & Send" : "Send Request";
         btn.disabled = false;
-        alert("Failed: " + (e.reason || e.message));
+        showToast("Failed: " + (e.reason || e.message), "error");
       }
     }
 
@@ -1146,10 +1176,16 @@
     }
 
     async function fulfillRequest(requestId) {
+      // Save details before transaction so we have them for the receipt
+      let reqName = "";
+      let reqAmt = "";
       try {
         const reqs = await contract.getMyPendingRequests();
         const req = reqs.find(r => r.id.toNumber() === requestId);
-        if (!req) { alert("Request not found"); return; }
+        if (!req) { showToast("Request not found", "error"); return; }
+        reqName = req.requesterName;
+        reqAmt = parseFloat(ethers.utils.formatUnits(req.amount, usdtDecimals)).toFixed(2);
+
         const allowance = await usdtContract.allowance(myAddress, CONTRACT_ADDRESS);
         if (allowance.lt(req.amount)) {
           const approveTx = await usdtContract.approve(CONTRACT_ADDRESS, ethers.constants.MaxUint256);
@@ -1157,16 +1193,17 @@
         }
         const tx = await contract.fulfillRequest(requestId);
         await tx.wait();
-        const amt = parseFloat(ethers.utils.formatUnits(req.amount, usdtDecimals)).toFixed(2);
-        document.getElementById("receiptAmount").textContent = "$" + amt;
-        document.getElementById("receiptDesc").textContent = "Sent to " + req.requesterName;
-        getUSDTBalance().then(usdt => {
-          document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
-        });
-        showScreen("screenReceipt");
       } catch (e) {
-        alert("Payment failed: " + (e.reason || e.message));
+        showToast("Payment failed: " + (e.reason || e.message), "error");
+        return;
       }
+      // Transaction succeeded — show receipt
+      document.getElementById("receiptAmount").textContent = "$" + reqAmt;
+      document.getElementById("receiptDesc").textContent = "Sent to " + reqName;
+      showScreen("screenReceipt");
+      getUSDTBalance().then(usdt => {
+        document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
+      }).catch(() => {});
     }
 
     async function showFullHistory() {
