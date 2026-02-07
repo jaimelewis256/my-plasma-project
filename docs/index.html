@@ -602,9 +602,25 @@
     <!-- ===== REQUESTS ===== -->
     <div id="screenRequests" class="screen">
       <div class="screen-pad">
-        <div class="page-title">Request Payment</div>
+        <div class="page-title">Requests</div>
+
+        <div id="pendingRequestsSection" style="margin-bottom:2rem">
+          <div class="home-section-header">
+            <h2>Pending Requests</h2>
+          </div>
+          <div id="pendingRequestsList"><div class="empty-state">No pending requests</div></div>
+        </div>
+
+        <div id="outgoingRequestsSection" style="margin-bottom:2rem">
+          <div class="home-section-header">
+            <h2>Your Outgoing Requests</h2>
+          </div>
+          <div id="outgoingRequestsList"><div class="empty-state">No outgoing requests</div></div>
+        </div>
+
+        <div class="page-title" style="margin-top:1rem">New Request</div>
         <div class="payees-card">
-          <div class="payees-label">Saved Payees</div>
+          <div class="payees-label">Request From</div>
           <div id="requestContactsList"></div>
         </div>
       </div>
@@ -614,10 +630,10 @@
     <div id="screenAmount" class="screen">
       <div class="screen-pad">
         <div class="page-header">
-          <button class="back-link" onclick="showContacts()">&larr; Back</button>
+          <button class="back-link" onclick="flowMode==='send'?showContacts():showRequests()">&larr; Back</button>
         </div>
         <div class="amount-display">
-          <div class="amount-to">Sending to <span id="amountToName">—</span></div>
+          <div class="amount-to"><span id="amountToLabel">Sending to</span> <span id="amountToName">—</span></div>
           <div class="amount-value"><span class="currency">$</span><span id="amountDisplay">0</span></div>
         </div>
         <div class="numpad">
@@ -725,7 +741,7 @@
   </div>
 
   <script>
-    const CONTRACT_ADDRESS = "0x75ab5A25a62ca79752aDb60B56FA6187df1aeC17";
+    const CONTRACT_ADDRESS = "0xd9DEBe4f00fe7AbD7921CA0Dec92433495b8F0AF";
     const USDT_ADDRESS = "0x502012b361AebCE43b26Ec812B74D9a51dB4D412";
     const ABI = [
       "function register(string calldata name) external",
@@ -735,7 +751,11 @@
       "function getContacts() view returns (string[] names, address[] addrs)",
       "function getMyHistory() view returns (tuple(address from, address to, string fromName, string toName, uint256 amount, uint256 timestamp)[])",
       "event UserRegistered(address indexed user, string name)",
-      "event PaymentSent(address indexed from, address indexed to, string fromName, string toName, uint256 amount, uint256 timestamp)"
+      "event PaymentSent(address indexed from, address indexed to, string fromName, string toName, uint256 amount, uint256 timestamp)",
+      "function requestByName(string calldata payerName, uint256 amount) external",
+      "function fulfillRequest(uint256 requestId) external",
+      "function getMyPendingRequests() view returns (tuple(uint256 id, address requester, address payer, string requesterName, string payerName, uint256 amount, uint256 timestamp, bool fulfilled, bool cancelled)[])",
+      "function getMyOutgoingRequests() view returns (tuple(uint256 id, address requester, address payer, string requesterName, string payerName, uint256 amount, uint256 timestamp, bool fulfilled, bool cancelled)[])"
     ];
     const ERC20_ABI = [
       "function balanceOf(address) view returns (uint256)",
@@ -747,6 +767,7 @@
     let provider, signer, contract, usdtContract, myAddress, myName;
     let selectedContact = { name: "", addr: "" };
     let amountStr = "0";
+    let flowMode = "send"; // "send" or "request"
 
     function showScreen(id) {
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -923,14 +944,28 @@
     async function showRequests() {
       setActiveNav("navRequests");
       showScreen("screenRequests");
-      await loadContactsList("requestContactsList", "selectContact");
+      await loadPendingRequests();
+      await loadOutgoingRequests();
+      await loadContactsList("requestContactsList", "selectRequestContact");
     }
 
     function selectContact(name, addr) {
+      flowMode = "send";
       selectedContact = { name, addr };
       amountStr = "0";
       document.getElementById("amountDisplay").textContent = "0";
       document.getElementById("amountToName").textContent = name;
+      document.getElementById("amountToLabel").textContent = "Sending to";
+      showScreen("screenAmount");
+    }
+
+    function selectRequestContact(name, addr) {
+      flowMode = "request";
+      selectedContact = { name, addr };
+      amountStr = "0";
+      document.getElementById("amountDisplay").textContent = "0";
+      document.getElementById("amountToName").textContent = name;
+      document.getElementById("amountToLabel").textContent = "Requesting from";
       showScreen("screenAmount");
     }
 
@@ -950,12 +985,22 @@
     function showPreview() {
       const usd = parseFloat(amountStr);
       if (!usd || usd <= 0) return;
-      document.getElementById("previewFromAvatar").textContent = myName.substring(0, 2).toUpperCase();
-      document.getElementById("previewToAvatar").textContent = selectedContact.name.substring(0, 2).toUpperCase();
+      if (flowMode === "send") {
+        document.getElementById("previewFromAvatar").textContent = myName.substring(0, 2).toUpperCase();
+        document.getElementById("previewToAvatar").textContent = selectedContact.name.substring(0, 2).toUpperCase();
+        document.getElementById("previewDesc").textContent = "will be sent to " + selectedContact.name;
+        document.getElementById("previewFrom").textContent = myName;
+        document.getElementById("previewTo").textContent = selectedContact.name;
+        document.getElementById("confirmBtn").textContent = "Confirm & Send";
+      } else {
+        document.getElementById("previewFromAvatar").textContent = selectedContact.name.substring(0, 2).toUpperCase();
+        document.getElementById("previewToAvatar").textContent = myName.substring(0, 2).toUpperCase();
+        document.getElementById("previewDesc").textContent = "will be requested from " + selectedContact.name;
+        document.getElementById("previewFrom").textContent = selectedContact.name;
+        document.getElementById("previewTo").textContent = myName;
+        document.getElementById("confirmBtn").textContent = "Send Request";
+      }
       document.getElementById("previewAmount").textContent = "$" + amountStr;
-      document.getElementById("previewDesc").textContent = "will be sent to " + selectedContact.name;
-      document.getElementById("previewFrom").textContent = myName;
-      document.getElementById("previewTo").textContent = selectedContact.name;
       document.getElementById("previewUSDT").textContent = "$" + parseFloat(amountStr).toFixed(2);
       showScreen("screenPreview");
     }
@@ -965,26 +1010,99 @@
       const usdtAmount = ethers.utils.parseUnits(usd.toFixed(usdtDecimals), usdtDecimals);
       const btn = document.getElementById("confirmBtn");
       try {
-        btn.textContent = "Approving..."; btn.disabled = true;
-        // Check if contract already has enough allowance
+        if (flowMode === "send") {
+          btn.textContent = "Approving..."; btn.disabled = true;
+          const allowance = await usdtContract.allowance(myAddress, CONTRACT_ADDRESS);
+          if (allowance.lt(usdtAmount)) {
+            const approveTx = await usdtContract.approve(CONTRACT_ADDRESS, ethers.constants.MaxUint256);
+            await approveTx.wait();
+          }
+          btn.textContent = "Sending...";
+          const tx = await contract.sendByName(selectedContact.name, usdtAmount);
+          await tx.wait();
+          document.getElementById("receiptAmount").textContent = "$" + amountStr;
+          document.getElementById("receiptDesc").textContent = "Sent to " + selectedContact.name;
+          getUSDTBalance().then(usdt => {
+            document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
+          });
+        } else {
+          btn.textContent = "Requesting..."; btn.disabled = true;
+          const tx = await contract.requestByName(selectedContact.name, usdtAmount);
+          await tx.wait();
+          document.getElementById("receiptAmount").textContent = "$" + amountStr;
+          document.getElementById("receiptDesc").textContent = "Requested from " + selectedContact.name;
+        }
+        btn.textContent = "Confirm & Send"; btn.disabled = false;
+        showScreen("screenReceipt");
+      } catch (e) {
+        btn.textContent = flowMode === "send" ? "Confirm & Send" : "Send Request";
+        btn.disabled = false;
+        alert("Failed: " + (e.reason || e.message));
+      }
+    }
+
+    async function loadPendingRequests() {
+      const el = document.getElementById("pendingRequestsList");
+      try {
+        const reqs = await contract.getMyPendingRequests();
+        if (reqs.length === 0) { el.innerHTML = '<div class="empty-state">No pending requests</div>'; return; }
+        let html = '<div class="tx-card">';
+        for (const r of reqs) {
+          const amt = parseFloat(ethers.utils.formatUnits(r.amount, usdtDecimals)).toFixed(2);
+          html += `
+            <div class="tx-item">
+              <div class="tx-icon">&#8601;</div>
+              <div class="tx-info">
+                <div class="tx-name">${r.requesterName} requested $${amt}</div>
+                <div class="tx-verified" style="color:var(--muted)">Tap Pay to send</div>
+              </div>
+              <button class="btn btn-primary" style="width:auto;padding:0.5rem 1rem;font-size:0.85rem" onclick="fulfillRequest(${r.id})">Pay</button>
+            </div>`;
+        }
+        html += '</div>';
+        el.innerHTML = html;
+      } catch (e) { el.innerHTML = '<div class="empty-state">Error loading requests</div>'; }
+    }
+
+    async function loadOutgoingRequests() {
+      const el = document.getElementById("outgoingRequestsList");
+      try {
+        const reqs = await contract.getMyOutgoingRequests();
+        if (reqs.length === 0) { el.innerHTML = '<div class="empty-state">No outgoing requests</div>'; return; }
+        let html = '<div class="tx-card">';
+        for (const r of reqs) {
+          const amt = parseFloat(ethers.utils.formatUnits(r.amount, usdtDecimals)).toFixed(2);
+          html += `
+            <div class="tx-item">
+              <div class="tx-icon">&#8987;</div>
+              <div class="tx-info">
+                <div class="tx-name">$${amt} from ${r.payerName}</div>
+                <div class="tx-verified" style="color:var(--muted)">Waiting for payment</div>
+              </div>
+              <div class="tx-amount" style="color:var(--muted)">Pending</div>
+            </div>`;
+        }
+        html += '</div>';
+        el.innerHTML = html;
+      } catch (e) { el.innerHTML = '<div class="empty-state">Error loading requests</div>'; }
+    }
+
+    async function fulfillRequest(requestId) {
+      try {
         const allowance = await usdtContract.allowance(myAddress, CONTRACT_ADDRESS);
-        if (allowance.lt(usdtAmount)) {
+        const req = (await contract.getMyPendingRequests()).find(r => r.id.toNumber() === requestId);
+        if (req && allowance.lt(req.amount)) {
           const approveTx = await usdtContract.approve(CONTRACT_ADDRESS, ethers.constants.MaxUint256);
           await approveTx.wait();
         }
-        btn.textContent = "Sending...";
-        const tx = await contract.sendByName(selectedContact.name, usdtAmount);
+        const tx = await contract.fulfillRequest(requestId);
         await tx.wait();
-        document.getElementById("receiptAmount").textContent = "$" + amountStr;
-        document.getElementById("receiptDesc").textContent = "Sent to " + selectedContact.name;
-        btn.textContent = "Confirm & Send"; btn.disabled = false;
-        // Pre-fetch updated balance so home screen is fresh
+        alert("Payment sent!");
+        await showRequests();
         getUSDTBalance().then(usdt => {
           document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
         });
-        showScreen("screenReceipt");
       } catch (e) {
-        btn.textContent = "Confirm & Send"; btn.disabled = false;
         alert("Payment failed: " + (e.reason || e.message));
       }
     }
