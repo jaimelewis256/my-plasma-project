@@ -506,6 +506,23 @@
     .register-box { width: 100%; max-width: 420px; }
     .register-box h1 { color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; }
     .register-box .subtitle { color: rgba(255,255,255,0.65); font-size: 0.9rem; margin-bottom: 2rem; }
+
+    /* ===== NAV BADGE ===== */
+    .nav-badge-wrap { position: relative; display: inline-block; }
+    .nav-badge {
+      position: absolute;
+      top: -6px; right: -8px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      min-width: 18px; height: 18px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+    }
   </style>
 </head>
 <body>
@@ -552,7 +569,7 @@
       </div>
       <div class="topbar-nav">
         <button id="navPayments" onclick="showContacts()">Payments</button>
-        <button id="navRequests" onclick="showRequests()">Requests</button>
+        <div class="nav-badge-wrap"><button id="navRequests" onclick="showRequests()">Requests</button><div class="nav-badge" id="requestBadge" style="display:none">0</div></div>
         <button id="navHistory" onclick="showFullHistory()">Transfer</button>
       </div>
       <div class="topbar-profile" onclick="openSidebar()">
@@ -567,6 +584,14 @@
           <div class="balance-label">Account Balance</div>
           <div class="balance-amount" id="homeBalance">$0.00</div>
           <div class="balance-currency">USDT</div>
+        </div>
+
+        <div id="homePendingSection" style="display:none;margin-bottom:2rem">
+          <div class="home-section-header">
+            <h2>Pending Requests</h2>
+            <button class="view-all" onclick="showRequests()">View all</button>
+          </div>
+          <div id="homePendingList"></div>
         </div>
 
         <div class="home-section-header">
@@ -844,7 +869,40 @@
       showScreen("screenHome");
       const usdt = await getUSDTBalance();
       document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
+      await refreshPendingRequests();
       await loadHistory("historyList", 4);
+    }
+
+    async function refreshPendingRequests() {
+      try {
+        const reqs = await contract.getMyPendingRequests();
+        const badge = document.getElementById("requestBadge");
+        const section = document.getElementById("homePendingSection");
+        const list = document.getElementById("homePendingList");
+        if (reqs.length === 0) {
+          badge.style.display = "none";
+          section.style.display = "none";
+          return;
+        }
+        badge.textContent = reqs.length;
+        badge.style.display = "flex";
+        section.style.display = "block";
+        let html = '<div class="tx-card">';
+        for (const r of reqs) {
+          const amt = parseFloat(ethers.utils.formatUnits(r.amount, usdtDecimals)).toFixed(2);
+          html += `
+            <div class="tx-item">
+              <div class="tx-icon" style="background:#fef2f2;color:#dc2626">&#8601;</div>
+              <div class="tx-info">
+                <div class="tx-name">${r.requesterName} requested $${amt}</div>
+                <div class="tx-verified" style="color:var(--muted)">Tap Pay to accept</div>
+              </div>
+              <button class="btn btn-primary" style="width:auto;padding:0.5rem 1rem;font-size:0.85rem" onclick="fulfillRequest(${r.id})">Pay</button>
+            </div>`;
+        }
+        html += '</div>';
+        list.innerHTML = html;
+      } catch (e) { console.error("Pending refresh error:", e); }
     }
 
     async function loadHistory(elementId, limit) {
@@ -1114,6 +1172,13 @@
       document.getElementById("historyBalance").textContent = "$" + usdt.toFixed(2);
       await loadHistory("fullHistoryList", null);
     }
+
+    // Poll for new pending requests every 15 seconds
+    setInterval(async () => {
+      if (contract && myAddress) {
+        await refreshPendingRequests();
+      }
+    }, 15000);
 
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", () => location.reload());
