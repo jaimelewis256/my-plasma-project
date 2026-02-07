@@ -360,7 +360,7 @@
       </div>
       <div class="balance-section">
         <div class="balance-label">Your balance</div>
-        <div class="balance-amount" id="homeBalance">0.00 ETH</div>
+        <div class="balance-amount" id="homeBalance">0.00 XPL</div>
         <div class="balance-sub" id="homeName">—</div>
       </div>
       <div class="send-btn-container">
@@ -433,7 +433,7 @@
         </div>
         <div class="preview-row">
           <span class="label">Amount (ETH)</span>
-          <span id="previewEth">0.005 ETH</span>
+          <span id="previewEth">0.005 XPL</span>
         </div>
         <div class="preview-row">
           <span class="label">Network fee</span>
@@ -471,8 +471,8 @@
       "event PaymentSent(address indexed from, address indexed to, string fromName, string toName, uint256 amount, uint256 timestamp)"
     ];
 
-    // Pretend $1 = 0.0005 ETH for display purposes
-    const ETH_PRICE_USD = 2000;
+    // Pretend $1 = 0.0005 XPL for display purposes
+    const XPL_PRICE_USD = 2000;
 
     let provider, signer, contract, myAddress, myName;
     let selectedContact = { name: "", addr: "" };
@@ -539,7 +539,7 @@
       showScreen("screenHome");
       const bal = await provider.getBalance(myAddress);
       const ethBal = parseFloat(ethers.utils.formatEther(bal));
-      document.getElementById("homeBalance").textContent = ethBal.toFixed(4) + " ETH";
+      document.getElementById("homeBalance").textContent = ethBal.toFixed(4) + " XPL";
       document.getElementById("homeName").textContent = myName;
 
       // Load history
@@ -558,7 +558,7 @@
           const name = isSender ? p.toName : p.fromName;
           const initial = name.charAt(0).toUpperCase();
           const ethAmt = parseFloat(ethers.utils.formatEther(p.amount));
-          const usdAmt = (ethAmt * ETH_PRICE_USD).toFixed(2);
+          const usdAmt = (ethAmt * XPL_PRICE_USD).toFixed(2);
           const date = new Date(p.timestamp.toNumber() * 1000);
           const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
@@ -639,7 +639,7 @@
       const usd = parseFloat(amountStr);
       if (!usd || usd <= 0) return;
 
-      const ethAmount = usd / ETH_PRICE_USD;
+      const ethAmount = usd / XPL_PRICE_USD;
 
       document.getElementById("previewFromAvatar").textContent = myName.charAt(0).toUpperCase();
       document.getElementById("previewToAvatar").textContent = selectedContact.name.charAt(0).toUpperCase();
@@ -647,7 +647,7 @@
       document.getElementById("previewDesc").textContent = "will be sent to " + selectedContact.name;
       document.getElementById("previewFrom").textContent = myName;
       document.getElementById("previewTo").textContent = selectedContact.name;
-      document.getElementById("previewEth").textContent = ethAmount.toFixed(6) + " ETH";
+      document.getElementById("previewEth").textContent = ethAmount.toFixed(6) + " XPL";
 
       showScreen("screenPreview");
     }
@@ -655,7 +655,7 @@
     // ---- Confirm ----
     async function confirmPayment() {
       const usd = parseFloat(amountStr);
-      const ethAmount = usd / ETH_PRICE_USD;
+      const ethAmount = usd / XPL_PRICE_USD;
       const weiAmount = ethers.utils.parseEther(ethAmount.toFixed(18));
 
       try {
