@@ -7,8 +7,9 @@ async function main() {
   const balance = await hre.ethers.provider.getBalance(deployer.address);
   console.log("Account balance:", hre.ethers.formatEther(balance), "XPL");
 
+  const USDT_ADDRESS = "0x502012b361AebCE43b26Ec812B74D9a51dB4D412";
   const PlasmaPayments = await hre.ethers.getContractFactory("PlasmaPayments");
-  const payments = await PlasmaPayments.deploy();
+  const payments = await PlasmaPayments.deploy(USDT_ADDRESS);
   await payments.waitForDeployment();
 
   const address = await payments.getAddress();

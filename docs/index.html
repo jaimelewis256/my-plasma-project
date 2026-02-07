@@ -566,7 +566,7 @@
         <div class="balance-hero">
           <div class="balance-label">Account Balance</div>
           <div class="balance-amount" id="homeBalance">$0.00</div>
-          <div class="balance-currency" id="homeBalanceDetail">XPL · USDT</div>
+          <div class="balance-currency">USDT</div>
         </div>
 
         <div class="home-section-header">
@@ -683,7 +683,7 @@
         <div class="balance-hero">
           <div class="balance-label">Account Balance</div>
           <div class="balance-amount" id="historyBalance">$0.00</div>
-          <div class="balance-currency" id="historyBalanceDetail">XPL · USDT</div>
+          <div class="balance-currency">USDT</div>
         </div>
         <div id="fullHistoryList"><div class="empty-state">No transactions yet</div></div>
       </div>
@@ -725,11 +725,11 @@
   </div>
 
   <script>
-    const CONTRACT_ADDRESS = "0x14f6c57F627CA5976C320428f507498d1b62b9B8";
+    const CONTRACT_ADDRESS = "0x75ab5A25a62ca79752aDb60B56FA6187df1aeC17";
     const USDT_ADDRESS = "0x502012b361AebCE43b26Ec812B74D9a51dB4D412";
     const ABI = [
       "function register(string calldata name) external",
-      "function sendByName(string calldata toName) external payable",
+      "function sendByName(string calldata toName, uint256 amount) external",
       "function addressToName(address) view returns (string)",
       "function nameToAddress(string) view returns (address)",
       "function getContacts() view returns (string[] names, address[] addrs)",
@@ -739,9 +739,11 @@
     ];
     const ERC20_ABI = [
       "function balanceOf(address) view returns (uint256)",
-      "function decimals() view returns (uint8)"
+      "function decimals() view returns (uint8)",
+      "function allowance(address owner, address spender) view returns (uint256)",
+      "function approve(address spender, uint256 amount) returns (bool)"
     ];
-    const XPL_PRICE_USD = 2000;
+    let usdtDecimals = 6;
     let provider, signer, contract, usdtContract, myAddress, myName;
     let selectedContact = { name: "", addr: "" };
     let amountStr = "0";
@@ -780,8 +782,9 @@
         }
         signer = provider.getSigner();
         contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-        usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, provider);
+        usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
         myAddress = await signer.getAddress();
+        try { usdtDecimals = await usdtContract.decimals(); } catch(e) { usdtDecimals = 6; }
         myName = await contract.addressToName(myAddress);
         if (myName && myName.length > 0) {
           showTopbar();
@@ -807,13 +810,6 @@
       } catch (e) { alert("Registration failed: " + (e.reason || e.message)); }
     }
 
-    async function getXPLBalance() {
-      try {
-        const bal = await provider.getBalance(myAddress);
-        return parseFloat(ethers.utils.formatEther(bal));
-      } catch (e) { return 0; }
-    }
-
     async function getUSDTBalance() {
       try {
         const decimals = await usdtContract.decimals();
@@ -825,13 +821,8 @@
     async function showHome() {
       setActiveNav(null);
       showScreen("screenHome");
-      const xpl = await getXPLBalance();
       const usdt = await getUSDTBalance();
-      const xplUsd = xpl * XPL_PRICE_USD;
-      const totalUsd = xplUsd + usdt;
-      document.getElementById("homeBalance").textContent = "$" + totalUsd.toFixed(2);
-      document.getElementById("homeBalanceDetail").textContent =
-        xpl.toFixed(4) + " XPL ($" + xplUsd.toFixed(2) + ")  ·  " + usdt.toFixed(2) + " USDT";
+      document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
       await loadHistory("historyList", 4);
     }
 
@@ -853,8 +844,7 @@
           const p = history[i];
           const isSender = p.from.toLowerCase() === myAddress.toLowerCase();
           const name = isSender ? p.toName : p.fromName;
-          const xplAmt = parseFloat(ethers.utils.formatEther(p.amount));
-          const usdAmt = (xplAmt * XPL_PRICE_USD).toFixed(2);
+          const usdAmt = parseFloat(ethers.utils.formatUnits(p.amount, usdtDecimals)).toFixed(2);
           const date = new Date(p.timestamp.toNumber() * 1000);
           const now = new Date();
           let label = date.toLocaleDateString([], { day: "numeric", month: "short" });
@@ -972,30 +962,29 @@
 
     async function confirmPayment() {
       const usd = parseFloat(amountStr);
-      const xplAmount = usd / XPL_PRICE_USD;
-      const weiAmount = ethers.utils.parseEther(xplAmount.toFixed(18));
+      const usdtAmount = ethers.utils.parseUnits(usd.toFixed(usdtDecimals), usdtDecimals);
+      const btn = document.getElementById("confirmBtn");
       try {
-        const btn = document.getElementById("confirmBtn");
-        btn.textContent = "Sending..."; btn.disabled = true;
-        const tx = await contract.sendByName(selectedContact.name, { value: weiAmount });
+        btn.textContent = "Approving..."; btn.disabled = true;
+        // Check if contract already has enough allowance
+        const allowance = await usdtContract.allowance(myAddress, CONTRACT_ADDRESS);
+        if (allowance.lt(usdtAmount)) {
+          const approveTx = await usdtContract.approve(CONTRACT_ADDRESS, ethers.constants.MaxUint256);
+          await approveTx.wait();
+        }
+        btn.textContent = "Sending...";
+        const tx = await contract.sendByName(selectedContact.name, usdtAmount);
         await tx.wait();
         document.getElementById("receiptAmount").textContent = "$" + amountStr;
         document.getElementById("receiptDesc").textContent = "Sent to " + selectedContact.name;
         btn.textContent = "Confirm & Send"; btn.disabled = false;
-        // Pre-fetch updated balance so home screen is fresh when they go back
-        getXPLBalance().then(xpl => {
-          getUSDTBalance().then(usdt => {
-            const xplUsd = xpl * XPL_PRICE_USD;
-            const totalUsd = xplUsd + usdt;
-            document.getElementById("homeBalance").textContent = "$" + totalUsd.toFixed(2);
-            document.getElementById("homeBalanceDetail").textContent =
-              xpl.toFixed(4) + " XPL ($" + xplUsd.toFixed(2) + ")  ·  " + usdt.toFixed(2) + " USDT";
-          });
+        // Pre-fetch updated balance so home screen is fresh
+        getUSDTBalance().then(usdt => {
+          document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
         });
         showScreen("screenReceipt");
       } catch (e) {
-        document.getElementById("confirmBtn").textContent = "Confirm & Send";
-        document.getElementById("confirmBtn").disabled = false;
+        btn.textContent = "Confirm & Send"; btn.disabled = false;
         alert("Payment failed: " + (e.reason || e.message));
       }
     }
@@ -1003,13 +992,8 @@
     async function showFullHistory() {
       setActiveNav("navHistory");
       showScreen("screenFullHistory");
-      const xpl = await getXPLBalance();
       const usdt = await getUSDTBalance();
-      const xplUsd = xpl * XPL_PRICE_USD;
-      const totalUsd = xplUsd + usdt;
-      document.getElementById("historyBalance").textContent = "$" + totalUsd.toFixed(2);
-      document.getElementById("historyBalanceDetail").textContent =
-        xpl.toFixed(4) + " XPL ($" + xplUsd.toFixed(2) + ")  ·  " + usdt.toFixed(2) + " USDT";
+      document.getElementById("historyBalance").textContent = "$" + usdt.toFixed(2);
       await loadHistory("fullHistoryList", null);
     }
 

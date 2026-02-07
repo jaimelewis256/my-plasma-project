@@ -3,8 +3,9 @@ const hre = require("hardhat");
 async function main() {
   const [deployer, alice, bob, charlie] = await hre.ethers.getSigners();
 
+  const USDT_ADDRESS = "0x502012b361AebCE43b26Ec812B74D9a51dB4D412";
   const PlasmaPayments = await hre.ethers.getContractFactory("PlasmaPayments");
-  const payments = await PlasmaPayments.deploy();
+  const payments = await PlasmaPayments.deploy(USDT_ADDRESS);
   await payments.waitForDeployment();
 
   const address = await payments.getAddress();
