@@ -340,6 +340,50 @@
     }
     .fab:hover { transform: scale(1.08); }
 
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 200;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 440px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+    .modal h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .modal p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .modal-input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      margin-bottom: 1rem;
+    }
+    .modal-input:focus { border-color: var(--green); }
+    .modal-input::placeholder { color: var(--muted); }
+    .modal-buttons { display: flex; gap: 0.75rem; }
+    .modal-buttons .btn { flex: 1; }
+    .modal-result {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+    }
+    .modal-result.found { background: var(--green-light); color: var(--green); }
+    .modal-result.not-found { background: #fef2f2; color: #dc2626; }
+
     /* ===== AMOUNT ===== */
     .amount-display {
       text-align: center;
@@ -644,6 +688,7 @@
           <div id="contactsList"></div>
         </div>
       </div>
+      <button class="fab" onclick="openAddPayee()">+</button>
     </div>
 
     <!-- ===== REQUESTS ===== -->
@@ -670,6 +715,22 @@
           <div class="payees-label">Request From</div>
           <div id="requestContactsList"></div>
         </div>
+      </div>
+      <button class="fab" onclick="openAddPayee()">+</button>
+    </div>
+
+    <!-- ===== ADD PAYEE MODAL ===== -->
+    <div class="modal-overlay" id="addPayeeModal" onclick="if(event.target===this)closeAddPayee()">
+      <div class="modal">
+        <h2>Add New Payee</h2>
+        <p>Enter their wallet address to add them as a payee. They must have the Plasma Testnet wallet set up.</p>
+        <input class="modal-input" id="payeeAddress" type="text" placeholder="0x... wallet address">
+        <input class="modal-input" id="payeeName" type="text" placeholder="Display name (e.g. Alice)" maxlength="20">
+        <div class="modal-buttons">
+          <button class="btn btn-outline" onclick="closeAddPayee()">Cancel</button>
+          <button class="btn btn-primary" id="addPayeeBtn" onclick="addPayee()">Add Payee</button>
+        </div>
+        <div id="addPayeeResult"></div>
       </div>
     </div>
 
@@ -1203,6 +1264,65 @@
       getUSDTBalance().then(usdt => {
         document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
       }).catch(() => {});
+    }
+
+    function openAddPayee() {
+      document.getElementById("addPayeeModal").classList.add("open");
+      document.getElementById("payeeAddress").value = "";
+      document.getElementById("payeeName").value = "";
+      document.getElementById("addPayeeResult").innerHTML = "";
+    }
+    function closeAddPayee() {
+      document.getElementById("addPayeeModal").classList.remove("open");
+    }
+
+    async function addPayee() {
+      const addr = document.getElementById("payeeAddress").value.trim();
+      const name = document.getElementById("payeeName").value.trim();
+      const resultEl = document.getElementById("addPayeeResult");
+      const btn = document.getElementById("addPayeeBtn");
+
+      if (!addr || !addr.startsWith("0x") || addr.length !== 42) {
+        resultEl.innerHTML = '<div class="modal-result not-found">Please enter a valid wallet address (0x...)</div>';
+        return;
+      }
+      if (!name) {
+        resultEl.innerHTML = '<div class="modal-result not-found">Please enter a display name</div>';
+        return;
+      }
+
+      btn.textContent = "Checking..."; btn.disabled = true;
+      try {
+        // Check if this address is already registered
+        const existingName = await contract.addressToName(addr);
+        if (existingName && existingName.length > 0) {
+          resultEl.innerHTML = '<div class="modal-result found">This address is already registered as <strong>' + existingName + '</strong>. You can find them in your payee list.</div>';
+          btn.textContent = "Add Payee"; btn.disabled = false;
+          return;
+        }
+
+        // Check if name is taken
+        const existingAddr = await contract.nameToAddress(name);
+        if (existingAddr !== "0x0000000000000000000000000000000000000000") {
+          resultEl.innerHTML = '<div class="modal-result not-found">The name "' + name + '" is already taken. Choose a different name.</div>';
+          btn.textContent = "Add Payee"; btn.disabled = false;
+          return;
+        }
+
+        // Register the new payee — this registers them from YOUR wallet as a known contact
+        // Note: On-chain, only the wallet owner can register themselves.
+        // So we show instructions instead.
+        resultEl.innerHTML = '<div class="modal-result not-found">' +
+          'This address is not registered yet. Ask them to:<br><br>' +
+          '1. Open <strong>jaimelewis256.github.io/my-plasma-project</strong><br>' +
+          '2. Connect their MetaMask (Plasma Testnet)<br>' +
+          '3. Register with the name <strong>"' + name + '"</strong><br><br>' +
+          'Once registered, they will appear in your payee list.</div>';
+        btn.textContent = "Add Payee"; btn.disabled = false;
+      } catch (e) {
+        resultEl.innerHTML = '<div class="modal-result not-found">Error: ' + (e.reason || e.message) + '</div>';
+        btn.textContent = "Add Payee"; btn.disabled = false;
+      }
     }
 
     async function showFullHistory() {
