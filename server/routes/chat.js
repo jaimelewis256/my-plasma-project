@@ -8,7 +8,7 @@ const openai = new OpenAI({
 });
 
 const CONTACT_EMAIL =
-  process.env.LEARNPLASMA_CONTACT_EMAIL || "support@learnplasma.com";
+  process.env.PLASMA_PAY_CONTACT_EMAIL || "support@plasmapay.com";
 
 const FRUSTRATION_THRESHOLD = 3;
 
