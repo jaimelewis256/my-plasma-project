@@ -1026,8 +1026,9 @@
         myName = await contract.addressToName(myAddress);
         if (myName && myName.length > 0) {
           showTopbar();
-          await showHome();
+          showScreen("screenHome");
           if (!localStorage.getItem("learnplasma_toured")) { startWalkthrough(); }
+          showHome();
         } else {
           showScreen("screenRegister");
         }
@@ -1045,8 +1046,9 @@
         await tx.wait();
         myName = name;
         showTopbar();
-        await showHome();
+        showScreen("screenHome");
         if (!localStorage.getItem("learnplasma_toured")) { startWalkthrough(); }
+        showHome();
       } catch (e) { showToast("Registration failed: " + (e.reason || e.message), "error"); }
     }
 
