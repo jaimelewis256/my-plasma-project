@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: plasmacoach
+    runtime: node
+    plan: free
+    buildCommand: cd server && npm install
+    startCommand: cd server && node index.js
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PLASMA_PAY_CONTACT_EMAIL
+        sync: false
