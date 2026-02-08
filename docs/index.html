@@ -1026,9 +1026,7 @@
         myName = await contract.addressToName(myAddress);
         if (myName && myName.length > 0) {
           showTopbar();
-          showScreen("screenHome");
-          showHome();
-          setTimeout(() => { startWalkthrough(); }, 500);
+          await showHome();
         } else {
           showScreen("screenRegister");
         }
@@ -1046,9 +1044,7 @@
         await tx.wait();
         myName = name;
         showTopbar();
-        showScreen("screenHome");
-        showHome();
-        setTimeout(() => { startWalkthrough(); }, 500);
+        await showHome();
       } catch (e) { showToast("Registration failed: " + (e.reason || e.message), "error"); }
     }
 
@@ -1060,13 +1056,20 @@
       } catch (e) { return 0; }
     }
 
+    let wtAutoStarted = false;
     async function showHome() {
       setActiveNav(null);
       showScreen("screenHome");
-      const usdt = await getUSDTBalance();
-      document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
-      await refreshPendingRequests();
-      await loadHistory("historyList", 4);
+      try {
+        const usdt = await getUSDTBalance();
+        document.getElementById("homeBalance").textContent = "$" + usdt.toFixed(2);
+        await refreshPendingRequests();
+        await loadHistory("historyList", 4);
+      } catch (e) { console.error("showHome error:", e); }
+      if (!wtAutoStarted) {
+        wtAutoStarted = true;
+        setTimeout(() => { startWalkthrough(); }, 300);
+      }
     }
 
     async function refreshPendingRequests() {
