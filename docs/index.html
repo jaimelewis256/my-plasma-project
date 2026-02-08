@@ -1450,20 +1450,31 @@
 
     // ===== GLOSSARY =====
     const glossaryData = [
+      { term: "Allowance", def: "Permission you give a smart contract to spend your tokens. Before the contract can move your USDT, you must set an allowance." },
+      { term: "Approval", def: "The transaction that sets an allowance. You approve a smart contract to spend up to a certain amount of your tokens." },
+      { term: "Block", def: "A group of transactions bundled together and added to the blockchain. Each block is linked to the previous one, forming a chain." },
+      { term: "Block Explorer", def: "A website to view transactions on the blockchain (e.g. PlasmaScan). You can look up any transaction, address, or block." },
       { term: "Blockchain", def: "A shared digital ledger that records transactions across many computers. Once recorded, the data cannot be changed, making it secure and transparent." },
+      { term: "Chain ID", def: "A unique number identifying a blockchain network. The Plasma Testnet uses Chain ID 9746." },
+      { term: "Confirmation", def: "When a transaction is verified and added to a block. Once confirmed, a transaction is permanent and cannot be reversed." },
       { term: "DApp", def: "Decentralised Application. An app that runs on a blockchain instead of a central server. LearnPlasma is a DApp." },
+      { term: "Decentralisation", def: "No single person or company controls the network. Instead, many computers around the world work together to keep it running." },
       { term: "ERC-20", def: "A standard for creating tokens on Ethereum-compatible blockchains. USDT follows this standard, which is why any wallet can send and receive it." },
       { term: "Gas Fee", def: "A small fee paid in XPL to process your transaction on the Plasma blockchain. Think of it like postage for sending a letter. Usually fractions of a cent." },
+      { term: "Hash", def: "A unique fingerprint for a transaction or block. It's a long string of letters and numbers that identifies it on the blockchain." },
       { term: "MetaMask", def: "A browser extension that acts as your crypto wallet. It stores your private keys and lets you approve transactions on blockchain apps." },
       { term: "Plasma", def: "A blockchain designed for fast, low-cost stablecoin payments. It's where LearnPlasma runs." },
       { term: "Private Key", def: "A secret code that proves you own your wallet. Never share it with anyone. Think of it as the password to your bank account." },
       { term: "Public Address", def: "Your wallet's address (starts with 0x). You can share this with others so they can send you money. Like a bank account number." },
+      { term: "RPC", def: "Remote Procedure Call — how your wallet talks to the blockchain. When you send a transaction, MetaMask uses an RPC endpoint to relay it to the network." },
       { term: "Smart Contract", def: "A program stored on the blockchain that automatically executes when conditions are met. LearnPlasma uses a smart contract to handle payments and requests." },
       { term: "Stablecoin", def: "A cryptocurrency designed to maintain a stable value, usually pegged to a real currency like the US Dollar. USDT is a stablecoin." },
       { term: "Testnet", def: "A test version of a blockchain for developers to experiment without using real money. All tokens on testnet have no real value." },
+      { term: "Token", def: "A digital asset on a blockchain (like USDT). Tokens follow standards like ERC-20 so they work across different wallets and apps." },
       { term: "Transaction", def: "A transfer of value recorded on the blockchain. Once confirmed, it cannot be undone. Each transaction has a unique ID and timestamp." },
       { term: "USDT", def: "Tether — a stablecoin pegged to the US Dollar (1 USDT = $1). This is the currency used for payments in LearnPlasma." },
       { term: "Wallet", def: "A digital tool that stores your cryptocurrency and lets you send/receive it. Your MetaMask is your wallet." },
+      { term: "Wei", def: "The smallest unit of cryptocurrency, like cents to dollars. 1 token = 1,000,000,000,000,000,000 wei (18 decimal places)." },
       { term: "XPL", def: "The native token of the Plasma blockchain, used to pay gas fees. You need a small amount of XPL to process transactions, even though payments are in USDT." }
     ];
 
@@ -1488,8 +1499,10 @@
     const walkthroughSteps = [
       { el: "#homeBalance", title: "Your Balance", text: "This shows your USDT balance — the money available in your wallet. USDT is a stablecoin worth $1 each.", pos: "below" },
       { el: ".action-card:first-child", title: "Send Money", text: "Tap here to send USDT to someone. Choose a contact, enter an amount, and confirm. The money transfers instantly on the blockchain.", pos: "above" },
+      { el: "#screenAmount .numpad", title: "Amount Keypad", text: "Use the keypad to enter the amount you want to send. Tap Next to preview before confirming.", pos: "above" },
       { el: ".action-card:last-child", title: "Request Money", text: "Request USDT from someone. They'll see your request and can approve it with one tap.", pos: "above" },
       { el: "#navPayments", title: "Payments Tab", text: "See all your contacts and choose who to send money to. You can also add new payees with the + button.", pos: "below" },
+      { el: ".fab", title: "Add Payee", text: "Tap the + button to add a new payee by entering their wallet address and display name.", pos: "above" },
       { el: "#navRequests", title: "Requests Tab", text: "View pending requests from others, your outgoing requests, and create new payment requests.", pos: "below" },
       { el: "#navHistory", title: "Transfer History", text: "View all your past transactions — both sent and received — with dates and amounts.", pos: "below" },
       { el: ".topbar-profile", title: "Account Menu", text: "Access your account settings, the Glossary of blockchain terms, or restart this guided tour anytime.", pos: "below" }
