@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Plasma Pay</title>
+  <title>LearnPlasma</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vollkorn:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
   <style>
@@ -526,6 +526,97 @@
     .register-box h1 { color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; }
     .register-box .subtitle { color: rgba(255,255,255,0.65); font-size: 0.9rem; margin-bottom: 2rem; }
 
+    /* ===== WALKTHROUGH ===== */
+    .walkthrough-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 500;
+    }
+    .walkthrough-overlay.active { display: block; }
+    .walkthrough-highlight {
+      position: absolute;
+      box-shadow: 0 0 0 4000px rgba(0,0,0,0.55);
+      border-radius: 12px;
+      z-index: 501;
+      pointer-events: none;
+    }
+    .walkthrough-box {
+      position: absolute;
+      z-index: 502;
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      max-width: 340px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .walkthrough-box h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .walkthrough-box p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; margin-bottom: 1rem; }
+    .walkthrough-box .wt-btns { display: flex; justify-content: space-between; align-items: center; }
+    .walkthrough-box .wt-step { font-size: 0.75rem; color: var(--muted); }
+    .walkthrough-box .wt-next {
+      background: var(--green); color: #fff; border: none; padding: 0.5rem 1.1rem;
+      border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .walkthrough-box .wt-skip {
+      background: none; border: none; color: var(--muted); font-size: 0.8rem; cursor: pointer; font-family: inherit;
+    }
+
+    /* ===== TOOLTIPS ===== */
+    .tip {
+      position: relative;
+      border-bottom: 1px dashed var(--green);
+      cursor: help;
+      color: var(--green);
+      font-weight: 500;
+    }
+    .tip:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text);
+      color: #fff;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 400;
+      white-space: normal;
+      width: max-content;
+      max-width: 260px;
+      z-index: 600;
+      line-height: 1.4;
+      margin-bottom: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* ===== GLOSSARY ===== */
+    .glossary-item {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .glossary-term {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--green);
+      margin-bottom: 0.25rem;
+    }
+    .glossary-def {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .glossary-letter {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--green);
+      padding: 1rem 0 0.25rem;
+      border-bottom: 2px solid var(--green);
+      margin-bottom: 0.25rem;
+    }
+
     /* ===== TOAST ===== */
     .toast {
       position: fixed;
@@ -574,7 +665,7 @@
       <div class="login-box">
         <div class="login-logo">
           <svg class="plasma-logo" width="52" height="52" viewBox="-55 -55 110 110" style="color:rgba(255,255,255,0.8)"><g><rect x="27" y="-0.79" width="6.6" height="1.59" rx="0.6" fill="currentColor" transform="rotate(0.0)"/><rect x="27" y="-0.81" width="7.7" height="1.62" rx="0.6" fill="currentColor" transform="rotate(11.3)"/><rect x="27" y="-0.83" width="9.3" height="1.66" rx="0.6" fill="currentColor" transform="rotate(22.5)"/><rect x="27" y="-0.86" width="11.0" height="1.71" rx="0.6" fill="currentColor" transform="rotate(33.8)"/><rect x="27" y="-0.88" width="12.9" height="1.77" rx="0.6" fill="currentColor" transform="rotate(45.0)"/><rect x="27" y="-0.91" width="14.9" height="1.83" rx="0.6" fill="currentColor" transform="rotate(56.3)"/><rect x="27" y="-0.94" width="16.9" height="1.88" rx="0.6" fill="currentColor" transform="rotate(67.5)"/><rect x="27" y="-0.97" width="18.9" height="1.94" rx="0.6" fill="currentColor" transform="rotate(78.8)"/><rect x="27" y="-1.00" width="20.8" height="1.99" rx="0.6" fill="currentColor" transform="rotate(90.0)"/><rect x="27" y="-1.02" width="22.5" height="2.04" rx="0.6" fill="currentColor" transform="rotate(101.3)"/><rect x="27" y="-1.04" width="24.1" height="2.09" rx="0.6" fill="currentColor" transform="rotate(112.5)"/><rect x="27" y="-1.06" width="25.4" height="2.13" rx="0.6" fill="currentColor" transform="rotate(123.8)"/><rect x="27" y="-1.08" width="26.5" height="2.16" rx="0.6" fill="currentColor" transform="rotate(135.0)"/><rect x="27" y="-1.09" width="27.3" height="2.18" rx="0.6" fill="currentColor" transform="rotate(146.3)"/><rect x="27" y="-1.10" width="27.8" height="2.19" rx="0.6" fill="currentColor" transform="rotate(157.5)"/><rect x="27" y="-1.10" width="28.0" height="2.20" rx="0.6" fill="currentColor" transform="rotate(168.8)"/><rect x="27" y="-1.10" width="27.9" height="2.20" rx="0.6" fill="currentColor" transform="rotate(180.0)"/><rect x="27" y="-1.09" width="27.4" height="2.18" rx="0.6" fill="currentColor" transform="rotate(191.3)"/><rect x="27" y="-1.08" width="26.7" height="2.16" rx="0.6" fill="currentColor" transform="rotate(202.5)"/><rect x="27" y="-1.07" width="25.7" height="2.13" rx="0.6" fill="currentColor" transform="rotate(213.8)"/><rect x="27" y="-1.05" width="24.4" height="2.10" rx="0.6" fill="currentColor" transform="rotate(225.0)"/><rect x="27" y="-1.03" width="22.9" height="2.05" rx="0.6" fill="currentColor" transform="rotate(236.3)"/><rect x="27" y="-1.00" width="21.2" height="2.00" rx="0.6" fill="currentColor" transform="rotate(247.5)"/><rect x="27" y="-0.98" width="19.3" height="1.95" rx="0.6" fill="currentColor" transform="rotate(258.8)"/><rect x="27" y="-0.95" width="17.3" height="1.90" rx="0.6" fill="currentColor" transform="rotate(270.0)"/><rect x="27" y="-0.92" width="15.3" height="1.84" rx="0.6" fill="currentColor" transform="rotate(281.3)"/><rect x="27" y="-0.89" width="13.3" height="1.78" rx="0.6" fill="currentColor" transform="rotate(292.5)"/><rect x="27" y="-0.86" width="11.4" height="1.73" rx="0.6" fill="currentColor" transform="rotate(303.8)"/><rect x="27" y="-0.84" width="9.6" height="1.68" rx="0.6" fill="currentColor" transform="rotate(315.0)"/><rect x="27" y="-0.82" width="8.1" height="1.63" rx="0.6" fill="currentColor" transform="rotate(326.3)"/><rect x="27" y="-0.80" width="6.8" height="1.59" rx="0.6" fill="currentColor" transform="rotate(337.5)"/><rect x="27" y="-0.79" width="6.0" height="1.57" rx="0.6" fill="currentColor" transform="rotate(348.8)"/><text x="-1" y="9" text-anchor="middle" fill="#fff" font-size="28" font-weight="400" font-family="Vollkorn,serif">P</text></g></svg>
-          <div class="login-logo-text">Plasma</div>
+          <div class="login-logo-text">LearnPlasma</div>
         </div>
         <div>
           <div class="login-label">Email</div>
@@ -592,10 +683,10 @@
       <div class="register-box">
         <div class="login-logo">
           <svg class="plasma-logo" width="52" height="52" viewBox="-55 -55 110 110" style="color:rgba(255,255,255,0.8)"><g><rect x="27" y="-0.79" width="6.6" height="1.59" rx="0.6" fill="currentColor" transform="rotate(0.0)"/><rect x="27" y="-0.81" width="7.7" height="1.62" rx="0.6" fill="currentColor" transform="rotate(11.3)"/><rect x="27" y="-0.83" width="9.3" height="1.66" rx="0.6" fill="currentColor" transform="rotate(22.5)"/><rect x="27" y="-0.86" width="11.0" height="1.71" rx="0.6" fill="currentColor" transform="rotate(33.8)"/><rect x="27" y="-0.88" width="12.9" height="1.77" rx="0.6" fill="currentColor" transform="rotate(45.0)"/><rect x="27" y="-0.91" width="14.9" height="1.83" rx="0.6" fill="currentColor" transform="rotate(56.3)"/><rect x="27" y="-0.94" width="16.9" height="1.88" rx="0.6" fill="currentColor" transform="rotate(67.5)"/><rect x="27" y="-0.97" width="18.9" height="1.94" rx="0.6" fill="currentColor" transform="rotate(78.8)"/><rect x="27" y="-1.00" width="20.8" height="1.99" rx="0.6" fill="currentColor" transform="rotate(90.0)"/><rect x="27" y="-1.02" width="22.5" height="2.04" rx="0.6" fill="currentColor" transform="rotate(101.3)"/><rect x="27" y="-1.04" width="24.1" height="2.09" rx="0.6" fill="currentColor" transform="rotate(112.5)"/><rect x="27" y="-1.06" width="25.4" height="2.13" rx="0.6" fill="currentColor" transform="rotate(123.8)"/><rect x="27" y="-1.08" width="26.5" height="2.16" rx="0.6" fill="currentColor" transform="rotate(135.0)"/><rect x="27" y="-1.09" width="27.3" height="2.18" rx="0.6" fill="currentColor" transform="rotate(146.3)"/><rect x="27" y="-1.10" width="27.8" height="2.19" rx="0.6" fill="currentColor" transform="rotate(157.5)"/><rect x="27" y="-1.10" width="28.0" height="2.20" rx="0.6" fill="currentColor" transform="rotate(168.8)"/><rect x="27" y="-1.10" width="27.9" height="2.20" rx="0.6" fill="currentColor" transform="rotate(180.0)"/><rect x="27" y="-1.09" width="27.4" height="2.18" rx="0.6" fill="currentColor" transform="rotate(191.3)"/><rect x="27" y="-1.08" width="26.7" height="2.16" rx="0.6" fill="currentColor" transform="rotate(202.5)"/><rect x="27" y="-1.07" width="25.7" height="2.13" rx="0.6" fill="currentColor" transform="rotate(213.8)"/><rect x="27" y="-1.05" width="24.4" height="2.10" rx="0.6" fill="currentColor" transform="rotate(225.0)"/><rect x="27" y="-1.03" width="22.9" height="2.05" rx="0.6" fill="currentColor" transform="rotate(236.3)"/><rect x="27" y="-1.00" width="21.2" height="2.00" rx="0.6" fill="currentColor" transform="rotate(247.5)"/><rect x="27" y="-0.98" width="19.3" height="1.95" rx="0.6" fill="currentColor" transform="rotate(258.8)"/><rect x="27" y="-0.95" width="17.3" height="1.90" rx="0.6" fill="currentColor" transform="rotate(270.0)"/><rect x="27" y="-0.92" width="15.3" height="1.84" rx="0.6" fill="currentColor" transform="rotate(281.3)"/><rect x="27" y="-0.89" width="13.3" height="1.78" rx="0.6" fill="currentColor" transform="rotate(292.5)"/><rect x="27" y="-0.86" width="11.4" height="1.73" rx="0.6" fill="currentColor" transform="rotate(303.8)"/><rect x="27" y="-0.84" width="9.6" height="1.68" rx="0.6" fill="currentColor" transform="rotate(315.0)"/><rect x="27" y="-0.82" width="8.1" height="1.63" rx="0.6" fill="currentColor" transform="rotate(326.3)"/><rect x="27" y="-0.80" width="6.8" height="1.59" rx="0.6" fill="currentColor" transform="rotate(337.5)"/><rect x="27" y="-0.79" width="6.0" height="1.57" rx="0.6" fill="currentColor" transform="rotate(348.8)"/><text x="-1" y="9" text-anchor="middle" fill="#fff" font-size="28" font-weight="400" font-family="Vollkorn,serif">P</text></g></svg>
-          <div class="login-logo-text">Plasma</div>
+          <div class="login-logo-text">LearnPlasma</div>
         </div>
         <h1>What's your name?</h1>
-        <p class="subtitle">This is how others will find you on Plasma Pay.</p>
+        <p class="subtitle">This is how others will find you on LearnPlasma.</p>
         <div class="login-label">Display name</div>
         <input class="login-input" type="text" id="registerName" placeholder="e.g. Jaime" maxlength="20" onkeydown="if(event.key==='Enter')registerUser()">
         <button class="login-btn" onclick="registerUser()">Continue</button>
@@ -606,7 +697,7 @@
     <div id="topbar" class="topbar" style="display:none">
       <div class="topbar-brand" onclick="showHome()">
         <svg class="plasma-logo" width="40" height="40" viewBox="-55 -55 110 110" style="color:#1a1a1a"><g><rect x="27" y="-0.79" width="6.6" height="1.59" rx="0.6" fill="currentColor" transform="rotate(0.0)"/><rect x="27" y="-0.81" width="7.7" height="1.62" rx="0.6" fill="currentColor" transform="rotate(11.3)"/><rect x="27" y="-0.83" width="9.3" height="1.66" rx="0.6" fill="currentColor" transform="rotate(22.5)"/><rect x="27" y="-0.86" width="11.0" height="1.71" rx="0.6" fill="currentColor" transform="rotate(33.8)"/><rect x="27" y="-0.88" width="12.9" height="1.77" rx="0.6" fill="currentColor" transform="rotate(45.0)"/><rect x="27" y="-0.91" width="14.9" height="1.83" rx="0.6" fill="currentColor" transform="rotate(56.3)"/><rect x="27" y="-0.94" width="16.9" height="1.88" rx="0.6" fill="currentColor" transform="rotate(67.5)"/><rect x="27" y="-0.97" width="18.9" height="1.94" rx="0.6" fill="currentColor" transform="rotate(78.8)"/><rect x="27" y="-1.00" width="20.8" height="1.99" rx="0.6" fill="currentColor" transform="rotate(90.0)"/><rect x="27" y="-1.02" width="22.5" height="2.04" rx="0.6" fill="currentColor" transform="rotate(101.3)"/><rect x="27" y="-1.04" width="24.1" height="2.09" rx="0.6" fill="currentColor" transform="rotate(112.5)"/><rect x="27" y="-1.06" width="25.4" height="2.13" rx="0.6" fill="currentColor" transform="rotate(123.8)"/><rect x="27" y="-1.08" width="26.5" height="2.16" rx="0.6" fill="currentColor" transform="rotate(135.0)"/><rect x="27" y="-1.09" width="27.3" height="2.18" rx="0.6" fill="currentColor" transform="rotate(146.3)"/><rect x="27" y="-1.10" width="27.8" height="2.19" rx="0.6" fill="currentColor" transform="rotate(157.5)"/><rect x="27" y="-1.10" width="28.0" height="2.20" rx="0.6" fill="currentColor" transform="rotate(168.8)"/><rect x="27" y="-1.10" width="27.9" height="2.20" rx="0.6" fill="currentColor" transform="rotate(180.0)"/><rect x="27" y="-1.09" width="27.4" height="2.18" rx="0.6" fill="currentColor" transform="rotate(191.3)"/><rect x="27" y="-1.08" width="26.7" height="2.16" rx="0.6" fill="currentColor" transform="rotate(202.5)"/><rect x="27" y="-1.07" width="25.7" height="2.13" rx="0.6" fill="currentColor" transform="rotate(213.8)"/><rect x="27" y="-1.05" width="24.4" height="2.10" rx="0.6" fill="currentColor" transform="rotate(225.0)"/><rect x="27" y="-1.03" width="22.9" height="2.05" rx="0.6" fill="currentColor" transform="rotate(236.3)"/><rect x="27" y="-1.00" width="21.2" height="2.00" rx="0.6" fill="currentColor" transform="rotate(247.5)"/><rect x="27" y="-0.98" width="19.3" height="1.95" rx="0.6" fill="currentColor" transform="rotate(258.8)"/><rect x="27" y="-0.95" width="17.3" height="1.90" rx="0.6" fill="currentColor" transform="rotate(270.0)"/><rect x="27" y="-0.92" width="15.3" height="1.84" rx="0.6" fill="currentColor" transform="rotate(281.3)"/><rect x="27" y="-0.89" width="13.3" height="1.78" rx="0.6" fill="currentColor" transform="rotate(292.5)"/><rect x="27" y="-0.86" width="11.4" height="1.73" rx="0.6" fill="currentColor" transform="rotate(303.8)"/><rect x="27" y="-0.84" width="9.6" height="1.68" rx="0.6" fill="currentColor" transform="rotate(315.0)"/><rect x="27" y="-0.82" width="8.1" height="1.63" rx="0.6" fill="currentColor" transform="rotate(326.3)"/><rect x="27" y="-0.80" width="6.8" height="1.59" rx="0.6" fill="currentColor" transform="rotate(337.5)"/><rect x="27" y="-0.79" width="6.0" height="1.57" rx="0.6" fill="currentColor" transform="rotate(348.8)"/><text x="-1" y="9" text-anchor="middle" fill="#1a1a1a" font-size="28" font-weight="400" font-family="Vollkorn,serif">P</text></g></svg>
-        <span class="topbar-brand-text">Plasma</span>
+        <span class="topbar-brand-text">LearnPlasma</span>
       </div>
       <div class="topbar-nav">
         <button id="navPayments" onclick="showContacts()">Payments</button>
@@ -624,7 +715,7 @@
         <div class="balance-hero">
           <div class="balance-label">Account Balance</div>
           <div class="balance-amount" id="homeBalance">$0.00</div>
-          <div class="balance-currency">USDT</div>
+          <div class="balance-currency"><span class="tip" data-tip="USDT (Tether) is a stablecoin pegged to the US Dollar. 1 USDT = $1.">USDT</span></div>
         </div>
 
         <div id="homePendingSection" style="display:none;margin-bottom:2rem">
@@ -753,13 +844,13 @@
           </div>
           <div class="preview-amount" id="previewAmount">$10</div>
           <div class="preview-desc" id="previewDesc">will be sent to Nele</div>
-          <div class="preview-fee">No fees</div>
+          <div class="preview-fee"><span class="tip" data-tip="LearnPlasma doesn't charge fees. A tiny XPL gas fee is paid to the network automatically." style="border:none;color:inherit">No fees</span></div>
         </div>
         <div class="preview-details">
           <div class="preview-row"><span class="label">From</span><span id="previewFrom">Jaime</span></div>
           <div class="preview-row"><span class="label">To</span><span id="previewTo">Nele</span></div>
           <div class="preview-row"><span class="label">Amount</span><span id="previewUSDT">$10.00</span></div>
-          <div class="preview-row"><span class="label">Network fee</span><span style="color:var(--green)">$0.00</span></div>
+          <div class="preview-row"><span class="label"><span class="tip" data-tip="A tiny fee (paid in XPL) to process your transaction on the Plasma blockchain. Usually fractions of a cent.">Network fee</span></span><span style="color:var(--green)">$0.00</span></div>
         </div>
         <button class="btn btn-primary" id="confirmBtn" onclick="confirmPayment()">Confirm &amp; Send</button>
       </div>
@@ -782,7 +873,7 @@
         <div class="balance-hero">
           <div class="balance-label">Account Balance</div>
           <div class="balance-amount" id="historyBalance">$0.00</div>
-          <div class="balance-currency">USDT</div>
+          <div class="balance-currency"><span class="tip" data-tip="USDT (Tether) is a stablecoin pegged to the US Dollar. 1 USDT = $1.">USDT</span></div>
         </div>
         <div id="fullHistoryList"><div class="empty-state">No transactions yet</div></div>
       </div>
@@ -811,14 +902,45 @@
         <span class="sidebar-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
         Privacy
       </button>
-      <button class="sidebar-menu-item">
+      <button class="sidebar-menu-item" onclick="closeSidebar();showGlossary()">
+        <span class="sidebar-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+        Glossary
+      </button>
+      <button class="sidebar-menu-item" onclick="closeSidebar();startWalkthrough()">
         <span class="sidebar-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-        Help
+        Guided Tour
       </button>
       <button class="sidebar-menu-item">
         <span class="sidebar-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
         Contact
       </button>
+    </div>
+
+    <!-- ===== GLOSSARY ===== -->
+    <div id="screenGlossary" class="screen">
+      <div class="screen-pad">
+        <div class="page-header">
+          <button class="back-link" onclick="showHome()">&larr; Back</button>
+          <h2>Glossary</h2>
+        </div>
+        <div id="glossaryContent"></div>
+      </div>
+    </div>
+
+    <!-- ===== WALKTHROUGH ===== -->
+    <div class="walkthrough-overlay" id="walkthroughOverlay">
+      <div class="walkthrough-highlight" id="wtHighlight"></div>
+      <div class="walkthrough-box" id="wtBox">
+        <h3 id="wtTitle"></h3>
+        <p id="wtText"></p>
+        <div class="wt-btns">
+          <span class="wt-step" id="wtStep"></span>
+          <div>
+            <button class="wt-skip" onclick="endWalkthrough()">Skip</button>
+            <button class="wt-next" id="wtNext" onclick="nextWalkthroughStep()">Next</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -1016,7 +1138,7 @@
               <div class="tx-icon">${arrow}</div>
               <div class="tx-info">
                 <div class="tx-name">${item.name}</div>
-                <div class="tx-verified"><svg width="12" height="12" viewBox="0 0 24 24" fill="var(--green)" stroke="none"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Verified</div>
+                <div class="tx-verified"><svg width="12" height="12" viewBox="0 0 24 24" fill="var(--green)" stroke="none"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> <span class="tip" data-tip="This transaction was confirmed on the Plasma blockchain and cannot be reversed." style="border-color:var(--green)">Verified</span></div>
               </div>
               <div class="tx-amount ${item.isSender ? "outflow" : "inflow"}">${item.isSender ? "-" : "+"}$${item.usdAmt}</div>
             </div>`;
@@ -1048,10 +1170,11 @@
             lastLetter = letter;
           }
           const initials = c.name.substring(0, 2).toUpperCase();
+          const isBot = c.name === "PracticeBot";
           html += `
             <div class="payee-item" onclick="${onClickFn}('${c.name}', '${c.addr}')">
-              <div class="payee-avatar">${initials}</div>
-              <div class="payee-name">${c.name}</div>
+              <div class="payee-avatar" ${isBot ? 'style="background:var(--green)"' : ''}>${isBot ? '🤖' : initials}</div>
+              <div class="payee-name">${c.name}${isBot ? ' <span style="font-size:0.75rem;color:var(--green);font-weight:600;margin-left:0.5rem;background:var(--green-light);padding:0.15rem 0.5rem;border-radius:8px">Practice Account</span>' : ''}</div>
             </div>`;
         }
         listEl.innerHTML = html;
@@ -1324,6 +1447,103 @@
       if (typeof ethers === "undefined") { btn.textContent = "ERROR: ethers.js failed to load"; btn.style.background = "#dc2626"; btn.style.color = "#fff"; return; }
       if (!window.ethereum) { btn.textContent = "MetaMask not detected"; btn.style.background = "#dc2626"; btn.style.color = "#fff"; return; }
     });
+
+    // ===== GLOSSARY =====
+    const glossaryData = [
+      { term: "Blockchain", def: "A shared digital ledger that records transactions across many computers. Once recorded, the data cannot be changed, making it secure and transparent." },
+      { term: "DApp", def: "Decentralised Application. An app that runs on a blockchain instead of a central server. LearnPlasma is a DApp." },
+      { term: "ERC-20", def: "A standard for creating tokens on Ethereum-compatible blockchains. USDT follows this standard, which is why any wallet can send and receive it." },
+      { term: "Gas Fee", def: "A small fee paid in XPL to process your transaction on the Plasma blockchain. Think of it like postage for sending a letter. Usually fractions of a cent." },
+      { term: "MetaMask", def: "A browser extension that acts as your crypto wallet. It stores your private keys and lets you approve transactions on blockchain apps." },
+      { term: "Plasma", def: "A blockchain designed for fast, low-cost stablecoin payments. It's where LearnPlasma runs." },
+      { term: "Private Key", def: "A secret code that proves you own your wallet. Never share it with anyone. Think of it as the password to your bank account." },
+      { term: "Public Address", def: "Your wallet's address (starts with 0x). You can share this with others so they can send you money. Like a bank account number." },
+      { term: "Smart Contract", def: "A program stored on the blockchain that automatically executes when conditions are met. LearnPlasma uses a smart contract to handle payments and requests." },
+      { term: "Stablecoin", def: "A cryptocurrency designed to maintain a stable value, usually pegged to a real currency like the US Dollar. USDT is a stablecoin." },
+      { term: "Testnet", def: "A test version of a blockchain for developers to experiment without using real money. All tokens on testnet have no real value." },
+      { term: "Transaction", def: "A transfer of value recorded on the blockchain. Once confirmed, it cannot be undone. Each transaction has a unique ID and timestamp." },
+      { term: "USDT", def: "Tether — a stablecoin pegged to the US Dollar (1 USDT = $1). This is the currency used for payments in LearnPlasma." },
+      { term: "Wallet", def: "A digital tool that stores your cryptocurrency and lets you send/receive it. Your MetaMask is your wallet." },
+      { term: "XPL", def: "The native token of the Plasma blockchain, used to pay gas fees. You need a small amount of XPL to process transactions, even though payments are in USDT." }
+    ];
+
+    function showGlossary() {
+      setActiveNav(null);
+      showScreen("screenGlossary");
+      const el = document.getElementById("glossaryContent");
+      let html = "";
+      let lastLetter = "";
+      for (const g of glossaryData) {
+        const letter = g.term.charAt(0).toUpperCase();
+        if (letter !== lastLetter) {
+          html += `<div class="glossary-letter">${letter}</div>`;
+          lastLetter = letter;
+        }
+        html += `<div class="glossary-item"><div class="glossary-term">${g.term}</div><div class="glossary-def">${g.def}</div></div>`;
+      }
+      el.innerHTML = html;
+    }
+
+    // ===== WALKTHROUGH =====
+    const walkthroughSteps = [
+      { el: "#homeBalance", title: "Your Balance", text: "This shows your USDT balance — the money available in your wallet. USDT is a stablecoin worth $1 each.", pos: "below" },
+      { el: ".action-card:first-child", title: "Send Money", text: "Tap here to send USDT to someone. Choose a contact, enter an amount, and confirm. The money transfers instantly on the blockchain.", pos: "above" },
+      { el: ".action-card:last-child", title: "Request Money", text: "Request USDT from someone. They'll see your request and can approve it with one tap.", pos: "above" },
+      { el: "#navPayments", title: "Payments Tab", text: "See all your contacts and choose who to send money to. You can also add new payees with the + button.", pos: "below" },
+      { el: "#navRequests", title: "Requests Tab", text: "View pending requests from others, your outgoing requests, and create new payment requests.", pos: "below" },
+      { el: "#navHistory", title: "Transfer History", text: "View all your past transactions — both sent and received — with dates and amounts.", pos: "below" },
+      { el: ".topbar-profile", title: "Account Menu", text: "Access your account settings, the Glossary of blockchain terms, or restart this guided tour anytime.", pos: "below" }
+    ];
+    let wtCurrent = 0;
+
+    function startWalkthrough() {
+      wtCurrent = 0;
+      showHome().then(() => { showWalkthroughStep(); });
+    }
+
+    function showWalkthroughStep() {
+      const overlay = document.getElementById("walkthroughOverlay");
+      const highlight = document.getElementById("wtHighlight");
+      const box = document.getElementById("wtBox");
+      if (wtCurrent >= walkthroughSteps.length) { endWalkthrough(); return; }
+
+      const step = walkthroughSteps[wtCurrent];
+      const target = document.querySelector(step.el);
+      if (!target) { wtCurrent++; showWalkthroughStep(); return; }
+
+      overlay.classList.add("active");
+      const rect = target.getBoundingClientRect();
+      const pad = 8;
+      highlight.style.left = (rect.left - pad) + "px";
+      highlight.style.top = (rect.top - pad) + "px";
+      highlight.style.width = (rect.width + pad * 2) + "px";
+      highlight.style.height = (rect.height + pad * 2) + "px";
+
+      document.getElementById("wtTitle").textContent = step.title;
+      document.getElementById("wtText").textContent = step.text;
+      document.getElementById("wtStep").textContent = (wtCurrent + 1) + " of " + walkthroughSteps.length;
+      document.getElementById("wtNext").textContent = wtCurrent === walkthroughSteps.length - 1 ? "Done" : "Next";
+
+      if (step.pos === "below") {
+        box.style.top = (rect.bottom + 16) + "px";
+        box.style.bottom = "auto";
+      } else {
+        box.style.top = "auto";
+        box.style.bottom = (window.innerHeight - rect.top + 16) + "px";
+      }
+      box.style.left = Math.max(16, Math.min(rect.left, window.innerWidth - 360)) + "px";
+    }
+
+    function nextWalkthroughStep() {
+      wtCurrent++;
+      if (wtCurrent >= walkthroughSteps.length) { endWalkthrough(); return; }
+      showWalkthroughStep();
+    }
+
+    function endWalkthrough() {
+      document.getElementById("walkthroughOverlay").classList.remove("active");
+      localStorage.setItem("learnplasma_toured", "1");
+    }
   </script>
 </body>
 </html>
