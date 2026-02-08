@@ -42,7 +42,7 @@ function askAPI(callback) {
 }
 
 console.log("");
-console.log("=== Plasma Pay Chatbot ===");
+console.log("=== Plasma Coach - LearnPlasma ===");
 console.log("");
 console.log("Welcome! Before we start, how much do you know about stablecoins and crypto?");
 console.log("");

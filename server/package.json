@@ -1,7 +1,7 @@
 {
-  "name": "plasma-pay-chatbot-server",
+  "name": "learnplasma-chatbot-server",
   "version": "1.0.0",
-  "description": "AI chatbot backend for Plasma Pay",
+  "description": "Plasma Coach chatbot backend for LearnPlasma",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
