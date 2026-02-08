@@ -6,6 +6,16 @@ An educational DApp that teaches blockchain payments hands-on using the Plasma T
 
 The frontend is hosted via GitHub Pages from the `docs/` folder.
 
+## Tech Stack
+
+**Frontend:** HTML, CSS, JavaScript, ethers.js (v5.7.2), hosted on GitHub Pages
+
+**Backend:** Node.js, Express, OpenAI API, deployed on Render/Vercel
+
+**Smart Contracts:** Solidity (0.8.24), Hardhat, deployed on Plasma Testnet (Chain ID 9746)
+
+**Wallet:** MetaMask | **Token:** USDT (ERC-20) on Plasma Testnet
+
 ## Project Structure
 
 ```
