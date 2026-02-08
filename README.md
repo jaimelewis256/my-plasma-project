@@ -1,6 +1,21 @@
-# my-plasma-project
+# LearnPlasma
 
-A baseline Plasma testnet project using Hardhat.
+An educational DApp that teaches blockchain payments hands-on using the Plasma Testnet. Users connect MetaMask, register a display name, and can send/receive/request USDT — all on a safe testnet with no real money.
+
+## Live Site
+
+The frontend is hosted via GitHub Pages from the `docs/` folder.
+
+## Project Structure
+
+```
+docs/index.html                      # Frontend (single-page app)
+contracts/PlasmaPayments.sol         # Smart contract (Solidity)
+scripts/deploy-payments-testnet.js   # Deploy contract to Plasma Testnet
+scripts/setup-practicebot.js         # Set up PracticeBot for testing
+server/                              # Chatbot backend (Render)
+api/                                 # Chatbot backend (Vercel)
+```
 
 ## Setup
 
@@ -13,7 +28,7 @@ A baseline Plasma testnet project using Hardhat.
    ```
    cp .env.example .env
    ```
-4. Add Plasma Testnet to your wallet:
+4. Add Plasma Testnet to MetaMask:
    - **Network Name**: Plasma Testnet
    - **RPC URL**: `https://testnet-rpc.plasma.to`
    - **Chain ID**: `9746`
@@ -24,7 +39,7 @@ A baseline Plasma testnet project using Hardhat.
 ## Commands
 
 ```bash
-npx hardhat compile        # Compile contracts
-npx hardhat test           # Run tests
-npx hardhat run scripts/deploy.js --network plasmaTestnet  # Deploy to Plasma testnet
+npx hardhat compile                                                        # Compile contracts
+npx hardhat run scripts/deploy-payments-testnet.js --network plasmaTestnet # Deploy to Plasma Testnet
+npx hardhat run scripts/setup-practicebot.js --network plasmaTestnet       # Set up PracticeBot
 ```
