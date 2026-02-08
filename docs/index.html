@@ -1027,7 +1027,7 @@
         if (myName && myName.length > 0) {
           showTopbar();
           showScreen("screenHome");
-          if (!localStorage.getItem("learnplasma_toured")) { startWalkthrough(); }
+          startWalkthrough();
           showHome();
         } else {
           showScreen("screenRegister");
@@ -1047,7 +1047,7 @@
         myName = name;
         showTopbar();
         showScreen("screenHome");
-        if (!localStorage.getItem("learnplasma_toured")) { startWalkthrough(); }
+        startWalkthrough();
         showHome();
       } catch (e) { showToast("Registration failed: " + (e.reason || e.message), "error"); }
     }
