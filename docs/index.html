@@ -1027,8 +1027,8 @@
         if (myName && myName.length > 0) {
           showTopbar();
           showScreen("screenHome");
-          startWalkthrough();
           showHome();
+          setTimeout(() => { startWalkthrough(); }, 500);
         } else {
           showScreen("screenRegister");
         }
@@ -1047,8 +1047,8 @@
         myName = name;
         showTopbar();
         showScreen("screenHome");
-        startWalkthrough();
         showHome();
+        setTimeout(() => { startWalkthrough(); }, 500);
       } catch (e) { showToast("Registration failed: " + (e.reason || e.message), "error"); }
     }
 
@@ -1571,7 +1571,7 @@
 
     function endWalkthrough() {
       document.getElementById("walkthroughOverlay").classList.remove("active");
-      localStorage.setItem("learnplasma_toured", "1");
+      showScreen("screenHome");
     }
   </script>
 </body>
