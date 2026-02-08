@@ -1515,14 +1515,11 @@
       wtNavigateAndShow();
     }
 
-    async function wtNavigateAndShow() {
+    function wtNavigateAndShow() {
       if (wtCurrent >= walkthroughSteps.length) { endWalkthrough(); return; }
       const step = walkthroughSteps[wtCurrent];
-      if (step.nav === "home") await showHome();
-      else if (step.nav === "contacts") await showContacts();
-      else if (step.nav === "requests") await showRequests();
-      else if (step.nav === "history") await showFullHistory();
-      else if (step.nav === "amount") showScreen("screenAmount");
+      const screenMap = { home: "screenHome", contacts: "screenContacts", requests: "screenRequests", history: "screenFullHistory", amount: "screenAmount" };
+      if (screenMap[step.nav]) showScreen(screenMap[step.nav]);
       setTimeout(() => { showWalkthroughStep(); }, 150);
     }
 
