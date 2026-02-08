@@ -1792,7 +1792,9 @@
     }
 
     // ===== PLASMA COACH CHAT =====
-    const COACH_API_URL = "https://plasmacoach.onrender.com";
+    const COACH_API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+      ? "http://localhost:3001"
+      : "https://plasmacoach.onrender.com";
     let chatMessages = [];
     let chatOpen = false;
     let coachKnowledgeLevel = "beginner";
