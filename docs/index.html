@@ -700,11 +700,11 @@
         <span class="topbar-brand-text">LearnPlasma</span>
       </div>
       <div class="topbar-nav">
-        <button id="navPayments" onclick="showContacts()">Payments</button>
-        <div class="nav-badge-wrap"><button id="navRequests" onclick="showRequests()">Requests</button><div class="nav-badge" id="requestBadge" style="display:none">0</div></div>
-        <button id="navHistory" onclick="showFullHistory()">Transfer History</button>
+        <button id="navPayments" onclick="showContacts()" title="View your saved payees and send payments">Payments</button>
+        <div class="nav-badge-wrap"><button id="navRequests" onclick="showRequests()" title="View and create payment requests">Requests</button><div class="nav-badge" id="requestBadge" style="display:none">0</div></div>
+        <button id="navHistory" onclick="showFullHistory()" title="View all past transactions">Transfer History</button>
       </div>
-      <div class="topbar-profile" onclick="openSidebar()">
+      <div class="topbar-profile" onclick="openSidebar()" title="Open account menu">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg>
       </div>
     </div>
@@ -733,11 +733,11 @@
         <div id="historyList"><div class="empty-state">No transactions yet</div></div>
 
         <div class="action-cards">
-          <button class="action-card" onclick="showContacts()">
+          <button class="action-card" onclick="showContacts()" title="Send USDT to a contact">
             <div class="action-card-icon">&#8599;</div>
             <div class="action-card-label">Send</div>
           </button>
-          <button class="action-card" onclick="showRequests()">
+          <button class="action-card" onclick="showRequests()" title="Request USDT from someone">
             <div class="action-card-icon">&#8601;</div>
             <div class="action-card-label">Request</div>
           </button>
@@ -754,7 +754,7 @@
           <div id="contactsList"></div>
         </div>
       </div>
-      <button class="fab" onclick="openAddPayee()">+</button>
+      <button class="fab" onclick="openAddPayee()" title="Add a new payee">+</button>
     </div>
 
     <!-- ===== REQUESTS ===== -->
@@ -782,7 +782,7 @@
           <div id="requestContactsList"></div>
         </div>
       </div>
-      <button class="fab" onclick="openAddPayee()">+</button>
+      <button class="fab" onclick="openAddPayee()" title="Add a new payee">+</button>
     </div>
 
     <!-- ===== ADD PAYEE MODAL ===== -->
@@ -886,31 +886,31 @@
         <h2>Account</h2>
         <button class="sidebar-close" onclick="closeSidebar()">&times;</button>
       </div>
-      <button class="sidebar-menu-item" onclick="closeSidebar()">
+      <button class="sidebar-menu-item" onclick="closeSidebar()" title="View your wallet address and account info">
         <span class="sidebar-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg></span>
         Account Details
       </button>
-      <button class="sidebar-menu-item">
+      <button class="sidebar-menu-item" title="Manage your app settings">
         <span class="sidebar-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
         Settings
       </button>
-      <button class="sidebar-menu-item">
+      <button class="sidebar-menu-item" title="View your notifications">
         <span class="sidebar-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
         Notifications
       </button>
-      <button class="sidebar-menu-item">
+      <button class="sidebar-menu-item" title="Manage your privacy settings">
         <span class="sidebar-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
         Privacy
       </button>
-      <button class="sidebar-menu-item" onclick="closeSidebar();showGlossary()">
+      <button class="sidebar-menu-item" onclick="closeSidebar();showGlossary()" title="Look up blockchain and crypto terms">
         <span class="sidebar-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
         Glossary
       </button>
-      <button class="sidebar-menu-item" onclick="closeSidebar();startWalkthrough()">
+      <button class="sidebar-menu-item" onclick="closeSidebar();startWalkthrough()" title="Take a step-by-step tour of the app">
         <span class="sidebar-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
         Guided Tour
       </button>
-      <button class="sidebar-menu-item">
+      <button class="sidebar-menu-item" title="Get in touch with us">
         <span class="sidebar-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
         Contact
       </button>
