@@ -1499,19 +1499,32 @@
 
     // ===== WALKTHROUGH =====
     const walkthroughSteps = [
-      { el: "#homeBalance", title: "Your Balance", text: "This shows your USDT balance — the money available in your wallet. USDT is a stablecoin worth $1 each.", pos: "below" },
-      { el: ".action-card:first-child", title: "Send Money", text: "Tap here to send USDT to someone. You'll use a keypad to enter the amount, then preview before confirming.", pos: "above" },
-      { el: ".action-card:last-child", title: "Request Money", text: "Request USDT from someone. They'll see your request and can approve it with one tap.", pos: "above" },
-      { el: "#navPayments", title: "Payments Tab", text: "See all your contacts and choose who to send money to. Use the + button to add new payees by entering their wallet address.", pos: "below" },
-      { el: "#navRequests", title: "Requests Tab", text: "View pending requests from others, your outgoing requests, and create new payment requests.", pos: "below" },
-      { el: "#navHistory", title: "Transfer History", text: "View all your past transactions — both sent and received — with dates and amounts.", pos: "below" },
-      { el: ".topbar-profile", title: "Account Menu", text: "Access your account settings, the Glossary of blockchain terms, or restart this guided tour anytime.", pos: "below" }
+      { el: "#homeBalance", title: "Your Balance", text: "This shows your USDT balance — the money available in your wallet. USDT is a stablecoin worth $1 each.", pos: "below", nav: "home" },
+      { el: ".action-card:first-child", title: "Send Money", text: "Tap here to send USDT to someone. Choose a contact, enter an amount, and confirm.", pos: "above", nav: "home" },
+      { el: ".numpad", title: "Amount Keypad", text: "Use the keypad to enter the amount you want to send. Tap Next to preview before confirming.", pos: "above", nav: "amount" },
+      { el: ".action-card:last-child", title: "Request Money", text: "Request USDT from someone. They'll see your request and can approve it with one tap.", pos: "above", nav: "home" },
+      { el: "#navPayments", title: "Payments Tab", text: "See all your contacts and choose who to send money to.", pos: "below", nav: "home" },
+      { el: ".fab", title: "Add Payee", text: "Tap the + button to add a new payee by entering their wallet address and display name.", pos: "above", nav: "contacts" },
+      { el: "#navRequests", title: "Requests Tab", text: "View pending requests from others, your outgoing requests, and create new payment requests.", pos: "below", nav: "home" },
+      { el: "#navHistory", title: "Transfer History", text: "View all your past transactions — both sent and received — with dates and amounts.", pos: "below", nav: "home" },
+      { el: ".topbar-profile", title: "Account Menu", text: "Access your account settings, the Glossary of blockchain terms, or restart this guided tour anytime.", pos: "below", nav: "home" }
     ];
     let wtCurrent = 0;
 
     function startWalkthrough() {
       wtCurrent = 0;
-      showHome().then(() => { showWalkthroughStep(); });
+      wtNavigateAndShow();
+    }
+
+    async function wtNavigateAndShow() {
+      if (wtCurrent >= walkthroughSteps.length) { endWalkthrough(); return; }
+      const step = walkthroughSteps[wtCurrent];
+      if (step.nav === "home") await showHome();
+      else if (step.nav === "contacts") await showContacts();
+      else if (step.nav === "requests") await showRequests();
+      else if (step.nav === "history") await showFullHistory();
+      else if (step.nav === "amount") showScreen("screenAmount");
+      setTimeout(() => { showWalkthroughStep(); }, 150);
     }
 
     function showWalkthroughStep() {
@@ -1522,7 +1535,7 @@
 
       const step = walkthroughSteps[wtCurrent];
       const target = document.querySelector(step.el);
-      if (!target) { wtCurrent++; showWalkthroughStep(); return; }
+      if (!target) { wtCurrent++; wtNavigateAndShow(); return; }
 
       overlay.classList.add("active");
       const rect = target.getBoundingClientRect();
@@ -1550,7 +1563,7 @@
     function nextWalkthroughStep() {
       wtCurrent++;
       if (wtCurrent >= walkthroughSteps.length) { endWalkthrough(); return; }
-      showWalkthroughStep();
+      wtNavigateAndShow();
     }
 
     function endWalkthrough() {
